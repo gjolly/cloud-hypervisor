@@ -16,7 +16,7 @@ Launch the source VM (on the host machine):
 ```console
 $ target/release/cloud-hypervisor
     --kernel ~/workloads/vmlinux \
-    --disk path=~/workloads/focal.raw \
+    --disk path=~/workloads/noble.raw \
     --cpus boot=1 --memory size=1G,shared=on \
     --cmdline "root=/dev/vda1 console=ttyS0"  \
     --serial tty --console off --api-socket=/tmp/api1

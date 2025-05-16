@@ -22,7 +22,7 @@ $ sudo setcap cap_net_admin+ep ./cloud-hypervisor/target/release/cloud-hyperviso
 $ ./cloud-hypervisor/target/release/cloud-hypervisor \
 	--kernel custom-vmlinux.bin \
 	--cmdline "console=ttyS0 console=hvc0 root=/dev/vda1 rw" \
-	--disk path=focal-server-cloudimg-amd64.raw \
+	--disk path=noble-server-cloudimg-amd64.raw \
 	--cpus boot=4,max=8 \
 	--memory size=1024M \
 	--net "tap=,mac=,ip=,mask=" \
@@ -80,7 +80,7 @@ $ sudo setcap cap_net_admin+ep ./cloud-hypervisor/target/release/cloud-hyperviso
 $ ./cloud-hypervisor/target/release/cloud-hypervisor \
 	--kernel custom-vmlinux.bin \
 	--cmdline "console=ttyS0 console=hvc0 root=/dev/vda1 rw" \
-	--disk path=focal-server-cloudimg-amd64.raw \
+	--disk path=noble-server-cloudimg-amd64.raw \
 	--cpus boot=4,max=8 \
 	--memory size=1024M,hotplug_size=8192M \
 	--net "tap=,mac=,ip=,mask=" \
@@ -131,7 +131,7 @@ $ sudo setcap cap_net_admin+ep ./cloud-hypervisor/target/release/cloud-hyperviso
 $ ./cloud-hypervisor/target/release/cloud-hypervisor \
 	--kernel custom-vmlinux.bin \
 	--cmdline "console=ttyS0 console=hvc0 root=/dev/vda1 rw" \
-	--disk path=focal-server-cloudimg-amd64.raw \
+	--disk path=noble-server-cloudimg-amd64.raw \
 	--memory size=1024M,hotplug_size=8192M,hotplug_method=virtio-mem \
 	--net "tap=,mac=,ip=,mask=" \
 	--api-socket=/tmp/ch-socket
@@ -168,7 +168,7 @@ $ sudo setcap cap_net_admin+ep ./cloud-hypervisor/target/release/cloud-hyperviso
 $ ./cloud-hypervisor/target/release/cloud-hypervisor \
 	--kernel custom-vmlinux.bin \
 	--cmdline "console=ttyS0 console=hvc0 root=/dev/vda1 rw" \
-	--disk path=focal-server-cloudimg-amd64.raw \
+	--disk path=noble-server-cloudimg-amd64.raw \
 	--cpus boot=4 \
 	--memory size=1024M \
 	--net "tap=,mac=,ip=,mask=" \

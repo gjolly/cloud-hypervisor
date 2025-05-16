@@ -78,7 +78,7 @@ From the guest:
 
 - [virtio-vsock in QEMU, Firecracker and Linux: Status, Performance and Challenges](https://kvmforum2019.sched.com/event/TmwK)
 - [Leveraging virtio-vsock in the cloud and containers](https://archive.fosdem.org/2021/schedule/event/vai_virtio_vsock/)
-- [VSOCK man page](https://manpages.ubuntu.com/manpages/focal/man7/vsock.7.html)
+- [VSOCK man page](https://manpages.ubuntu.com/manpages/noble/man7/vsock.7.html)
 - [https://stefano-garzarella.github.io/posts/2020-02-20-vsock-nested-vms-loopback/](https://stefano-garzarella.github.io/posts/2020-02-20-vsock-nested-vms-loopback/)
 - [https://github.com/firecracker-microvm/firecracker/blob/main/docs/vsock.md](https://github.com/firecracker-microvm/firecracker/blob/main/docs/vsock.md)
 

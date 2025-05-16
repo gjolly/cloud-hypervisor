@@ -21,7 +21,7 @@ e.g.
 ```
 $ perf record -g target/profiling/cloud-hypervisor \
         --kernel ~/src/linux/vmlinux \
-        --pmem file=~/workloads/focal.raw \
+        --pmem file=~/workloads/noble.raw \
         --cpus boot=1 --memory size=1G \
         --cmdline "root=/dev/pmem0p1 console=ttyS0" \
         --serial tty --console off \
@@ -48,7 +48,7 @@ e.g.
 ```
 $ perf record --call-graph lbr --all-user --user-callchains -g target/release/cloud-hypervisor \
         --kernel ~/src/linux/vmlinux \
-        --pmem file=~/workloads/focal.raw \
+        --pmem file=~/workloads/noble.raw \
         --cpus boot=1 --memory size=1G \
         --cmdline "root=/dev/pmem0p1 console=ttyS0" \
         --serial tty --console off \

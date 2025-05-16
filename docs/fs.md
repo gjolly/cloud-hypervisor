@@ -67,13 +67,13 @@ virtio-fs, given that the cloud image contains a recent enough kernel.
 Correct functioning of `--fs` requires `--memory shared=on` to facilitate
 interprocess memory sharing.
 
-Assuming you have `focal-server-cloudimg-amd64.raw` and `vmlinux` on your
+Assuming you have `noble-server-cloudimg-amd64.raw` and `vmlinux` on your
 system, here is the Cloud Hypervisor command you need to run:
 ```bash
 ./cloud-hypervisor \
     --cpus boot=1 \
     --memory size=1G,shared=on \
-    --disk path=focal-server-cloudimg-amd64.raw \
+    --disk path=noble-server-cloudimg-amd64.raw \
     --kernel vmlinux \
     --cmdline "console=hvc0 root=/dev/vda1 rw" \
     --fs tag=myfs,socket=/tmp/virtiofs,num_queues=1,queue_size=512

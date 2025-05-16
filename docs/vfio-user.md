@@ -26,7 +26,7 @@ Start Cloud Hypervisor:
 ```sh
 target/debug/cloud-hypervisor \
     --memory size=1G,shared=on \
-    --disk path=~/images/focal-server-cloudimg-amd64.raw \
+    --disk path=~/images/noble-server-cloudimg-amd64.raw \
     --kernel ~/src/linux/vmlinux \
     --cmdline "root=/dev/vda1 console=hvc0" \
     --user-device socket=/tmp/vfio-user.sock 
@@ -72,7 +72,7 @@ Start Cloud Hypervisor:
 ```sh
 target/debug/cloud-hypervisor \
     --memory size=1G,shared=on \
-    --disk path=~/images/focal-server-cloudimg-amd64.raw \
+    --disk path=~/images/noble-server-cloudimg-amd64.raw \
     --kernel ~/src/linux/vmlinux \
     --cmdline "root=/dev/vda1 console=hvc0" \
     --user-device socket=/tmp/nvme-vfio-user/cntrl 

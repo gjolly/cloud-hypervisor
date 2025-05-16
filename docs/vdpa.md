@@ -133,7 +133,7 @@ Start Cloud Hypervisor:
 cloud-hypervisor \
     --cpus boot=1 \
     --memory size=1G,hugepages=on \
-    --disk path=focal-server-cloudimg-amd64.raw \
+    --disk path=noble-server-cloudimg-amd64.raw \
     --kernel vmlinux \
     --cmdline "root=/dev/vda1 console=hvc0" \
     --vdpa path=/dev/vhost-vdpa-0,num_queues=1

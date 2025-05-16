@@ -19,7 +19,7 @@ First thing, we must run a Cloud Hypervisor VM:
     --memory size=4G \
     --kernel vmlinux \
     --cmdline "root=/dev/vda1 console=hvc0 rw" \
-    --disk path=focal-server-cloudimg-amd64.raw
+    --disk path=noble-server-cloudimg-amd64.raw
 ```
 
 At any point in time when the VM is running, one might choose to pause it:

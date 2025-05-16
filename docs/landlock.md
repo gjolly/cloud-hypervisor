@@ -70,7 +70,7 @@ To enable Landlock:
 ```
 ./cloud-hypervisor \
 	--kernel ./linux-cloud-hypervisor/arch/x86/boot/compressed/vmlinux.bin \
-	--disk path=focal-server-cloudimg-amd64.raw path=/tmp/ubuntu-cloudinit.img \
+	--disk path=noble-server-cloudimg-amd64.raw path=/tmp/ubuntu-cloudinit.img \
 	--cmdline "console=hvc0 root=/dev/vda1 rw" \
 	--cpus boot=4 \
 	--memory size=1024M \
@@ -86,7 +86,7 @@ To enable Landlock with hotplug support:
 ./cloud-hypervisor \
 	--api-socket /tmpXXXX/ch.socket \
 	--kernel ./linux-cloud-hypervisor/arch/x86/boot/compressed/vmlinux.bin \
-	--disk path=focal-server-cloudimg-amd64.raw path=/tmp/ubuntu-cloudinit.img \
+	--disk path=noble-server-cloudimg-amd64.raw path=/tmp/ubuntu-cloudinit.img \
 	--cmdline "console=hvc0 root=/dev/vda1 rw" \
 	--cpus boot=4 \
 	--memory size=1024M \
