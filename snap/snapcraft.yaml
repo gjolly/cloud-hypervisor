@@ -1,0 +1,43 @@
+name: cloud-hypervisor
+base: core26
+version: git
+title: Cloud Hypervisor
+summary: Open source Virtual Machine Monitor (VMM) written in Rust.
+license: Apache-2.0 AND BSD-3-Clause
+contact: https://github.com/cloud-hypervisor/cloud-hypervisor/issues
+issues: https://github.com/cloud-hypervisor/cloud-hypervisor/issues
+source-code: https://github.com/cloud-hypervisor/cloud-hypervisor
+website: https://www.cloudhypervisor.org
+grade: stable
+confinement: strict
+platforms:
+  amd64:
+  arm64:
+description: |
+  The project focuses on running modern, _Cloud Workloads_, on specific,
+  common, hardware architectures. In this case _Cloud Workloads_ refers to
+  those that are run by customers inside a Cloud Service Provider. This means
+  modern operating systems with most I/O handled by paravirtualised devices
+  (e.g. _virtio_), no requirement for legacy devices, and 64-bit CPUs.
+
+parts:
+  cloud-hypervisor:
+    plugin: rust
+    source: .
+    rust-path: ["cloud-hypervisor"]
+
+apps:
+  cloud-hypervisor:
+    command: bin/cloud-hypervisor
+    aliases:
+      - cloud-hypervisor
+    plugs:
+      - network
+      - network-control
+      # home is required to access disk image files in the user's home directory
+      - home
+      - kvm
+  ch-remote:
+    command: bin/ch-remote
+    plugs:
+      - network
