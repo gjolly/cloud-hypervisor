@@ -2,10 +2,9 @@
 set -x
 
 sudo apt install -y libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf git make dpkg-dev libmnl-dev pkg-config iproute2
-sudo sed -i -- 's/# deb-src/deb-src/g' /etc/apt/sources.list
-sudo apt update
+sudo apt-add-repository -y --enable-source
 apt-get source linux-image-unsigned-"$(uname -r)"
-pushd linux-azure*/drivers/vdpa/vdpa_sim/ || exit
+pushd linux-*/drivers/vdpa/vdpa_sim/ || exit
 # REUSE-IgnoreStart
 cat <<'EOF' >Makefile
 # SPDX-License-Identifier: GPL-2.0
