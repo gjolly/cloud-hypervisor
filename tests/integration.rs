@@ -3221,6 +3221,122 @@ mod common_parallel {
         handle_child_output(r, &output);
     }
 
+    #[test]
+    fn _test_virtio_block_io_error(synchronous_backend: bool) {
+        let jammy = UbuntuDiskConfig::new(JAMMY_IMAGE_NAME.to_string());
+        let guest = Guest::new(Box::new(jammy));
+
+        let mut workload_path = dirs::home_dir().unwrap();
+        workload_path.push("workloads");
+
+        let test_img_dir = TempDir::new_with_prefix("/var/tmp/ch").unwrap();
+        let blk_file_path =
+            String::from(test_img_dir.as_path().join("blk.img").to_str().unwrap());
+        assert!(exec_host_command_output(&format!(
+            "trucate -s 1M {blk_file_path}"
+        ))
+        .status
+        .success());
+
+        assert!(exec_host_command_output(&format!(
+            "modprobe nbd"
+        ))
+        .status
+        .success());
+
+        let nbd_device = "/dev/nbd0";
+        assert!(exec_host_command_output(&format!(
+            "qemu-nbd --connect {nbd_device} {blk_file_path}"
+        ))
+        .status
+        .success());
+
+        let kernel_path = direct_kernel_boot_path();
+
+        let mut cloud_child = GuestCommand::new(&guest)
+            .args(["--cpus", "boot=4"])
+            .args(["--memory", "size=512M,shared=on"])
+            .args(["--kernel", kernel_path.to_str().unwrap()])
+            .args(["--cmdline", DIRECT_KERNEL_BOOT_CMDLINE])
+            .args([
+                "--disk",
+                format!(
+                    "path={}",
+                    guest.disk_config.disk(DiskType::OperatingSystem).unwrap()
+                )
+                .as_str(),
+                format!(
+                    "path={}",
+                    guest.disk_config.disk(DiskType::CloudInit).unwrap()
+                )
+                .as_str(),
+                format!(
+                    "path={},readonly=on,direct=on,num_queues=4,_disable_io_uring={},_disable_aio={}",
+                    blk_file_path.to_str().unwrap(),
+                    synchronous_backend,
+                    synchronous_backend,
+                )
+                .as_str(),
+            ])
+            .default_net()
+            .capture_output()
+            .spawn()
+            .unwrap();
+
+        let r = std::panic::catch_unwind(|| {
+            guest.wait_vm_boot(None).unwrap();
+
+            // Check both if /dev/vdc exists and if the block size is 1M.
+            assert_eq!(
+                guest
+                    .ssh_command("lsblk | grep vdc | grep -c 1M")
+                    .unwrap()
+                    .trim()
+                    .parse::<u32>()
+                    .unwrap_or_default(),
+                1
+            );
+
+            // disconnect the nbd device
+            assert!(exec_host_command_output(&format!(
+                "qemu-nbd --disconnect {nbd_device}"
+            ))
+            .status
+            .success());
+
+            // Try to write to the disk
+            guest
+                .ssh_command("echo 'foo' > /dev/vdc")
+                .unwrap()
+
+            // Look for kernel error logs
+            assert_ne!(
+                guest
+                    .ssh_command("journalctl -b0 | grep -c 'I/O error, dev vdc'")
+                    .unwrap()
+                    .trim()
+                    .parse::<u32>()
+                    .unwrap_or_default(),
+                0
+            );
+        });
+
+        let _ = cloud_child.kill();
+        let output = cloud_child.wait_with_output().unwrap();
+
+        handle_child_output(r, &output);
+    }
+
+    #[test]
+    fn test_virtio_block_io_error_synchronous_backend(true) {
+        _test_virtio_block_io_error(true)
+    }
+
+    #[test]
+    fn test_virtio_block_io_error_asynchronous_backend(true) {
+        _test_virtio_block_io_error(false)
+    }
+
     fn _test_virtio_block(image_name: &str, disable_io_uring: bool, disable_aio: bool) {
         let focal = UbuntuDiskConfig::new(image_name.to_string());
         let guest = Guest::new(Box::new(focal));
