@@ -1,0 +1,318 @@
+.\" Man page for ch-remote(1)
+.TH CH-REMOTE 1 "2025-07-01" "cloud-hypervisor 52.0.0" "User Commands"
+.SH NAME
+ch-remote \- remotely control a cloud-hypervisor VMM
+.SH SYNOPSIS
+.B ch-remote
+.RI [ OPTIONS ]
+.I COMMAND
+.RI [ ARGS ]
+.SH DESCRIPTION
+.B ch-remote
+is a command-line client that communicates with a running
+.BR cloud-hypervisor (1)
+instance through its HTTP API socket. It can be used to query VM status,
+hotplug devices, trigger lifecycle operations (boot, pause, resume, reboot,
+shutdown), perform live migration, and create or restore snapshots.
+.SH OPTIONS
+.TP
+.BI \-\-api\-socket " path"
+Path to the HTTP API UNIX domain socket of the target
+.BR cloud-hypervisor (1)
+instance.
+.TP
+.BR \-h ", " \-\-help
+Print a help summary and exit.
+.TP
+.BR \-V ", " \-\-version
+Print version information and exit.
+.SH COMMANDS
+.SS Lifecycle Commands
+.TP
+.B boot
+Boot a created VM. The VM must have been previously created with the
+.B create
+command.
+.TP
+.B pause
+Pause a running VM. All vCPUs are suspended.
+.TP
+.B resume
+Resume a previously paused VM.
+.TP
+.B reboot
+Reboot the VM.
+.TP
+.B shutdown
+Shutdown the VM (graceful guest-initiated shutdown).
+.TP
+.B shutdown\-vmm
+Shutdown the VMM process itself.
+.TP
+.B power\-button
+Trigger an ACPI power button event in the VM, allowing the guest to handle
+the shutdown gracefully.
+.TP
+.B nmi
+Trigger a Non-Maskable Interrupt (NMI) in the VM. Useful for debugging
+guest hangs.
+.TP
+.B delete
+Delete a VM and free its resources.
+.SS VM Creation and Configuration
+.TP
+.BI "create " [path]
+Create a VM from a JSON configuration file. If
+.I path
+is \(lq\-\(rq or omitted, the configuration is read from standard input.
+.TP
+.BI "resize " options
+Resize the VM resources.
+.RS
+.TP
+.BI \-\-cpus " count"
+New vCPU count.
+.TP
+.BI \-\-memory " size"
+New memory size in bytes (supports K/M/G suffix).
+.TP
+.BI \-\-balloon " size"
+New balloon size in bytes (supports K/M/G suffix).
+.RE
+.TP
+.BI "resize\-disk " options
+Resize an attached block device.
+.RS
+.TP
+.BI \-\-disk " id"
+Disk device identifier.
+.TP
+.BI \-\-size " size"
+New disk size.
+.RE
+.TP
+.BI "resize\-zone " options
+Resize a memory zone.
+.RS
+.TP
+.BI \-\-id " zone_id"
+Memory zone identifier.
+.TP
+.BI \-\-size " size"
+New memory zone size in bytes (supports K/M/G suffix).
+.RE
+.SS Device Hotplug
+.TP
+.BI "add\-device " config
+Add a VFIO device.
+Syntax:
+.RS
+.nf
+\fIpath=<device_path>,iommu=on|off,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>,
+x_nv_gpudirect_clique=<clique_id>,
+x_exclude_mmap_bars=[<bar>...]\fR
+.fi
+.RE
+.TP
+.BI "add\-disk " config
+Add a block device.
+Syntax:
+.RS
+.nf
+\fIpath=<disk_image_path>,readonly=on|off,
+direct=on|off,iommu=on|off,
+num_queues=<number_of_queues>,
+queue_size=<size_of_each_queue>,vhost_user=on|off,
+socket=<vhost_user_socket_path>,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI "add\-fs " config
+Add a virtio-fs backed filesystem device.
+Syntax:
+.RS
+.nf
+\fItag=<tag_name>,socket=<socket_path>,
+num_queues=<number_of_queues>,
+queue_size=<size_of_each_queue>,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI "add\-generic\-vhost\-user " config
+Add a generic vhost-user device.
+Syntax:
+.RS
+.nf
+\fIvirtio_id=<ID_or_name>,socket=<socket_path>,
+queue_sizes=<list_of_queue_sizes>,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI "add\-net " config
+Add a network device.
+Syntax:
+.RS
+.nf
+\fItap=<if_name>,ip=<ip_addr>,mask=<net_mask>,
+mac=<mac_addr>,fd=<[fd1,fd2,...]>,iommu=on|off,
+num_queues=<number_of_queues>,
+queue_size=<size_of_each_queue>,id=<device_id>,
+vhost_user=on|off,socket=<vhost_user_socket_path>,
+vhost_mode=client|server,pci_segment=<segment_id>,
+pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI "add\-pmem " config
+Add a persistent memory device.
+Syntax:
+.RS
+.nf
+\fIfile=<backing_file_path>,size=<persistent_memory_size>,
+iommu=on|off,discard_writes=on|off,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI "add\-user\-device " config
+Add a userspace device.
+Syntax:
+.IR socket=<socket_path> , id=<device_id> , pci_segment=<segment_id> , pci_device_id=<pci_slot> .
+.TP
+.BI "add\-vdpa " config
+Add a vDPA device.
+Syntax:
+.RS
+.nf
+\fIpath=<device_path>,num_queues=<number_of_queues>,
+iommu=on|off,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI "add\-vsock " config
+Add a vsock device.
+Syntax:
+.RS
+.nf
+\fIcid=<context_id>,socket=<socket_path>,iommu=on|off,
+id=<device_id>,pci_segment=<segment_id>,
+pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI "remove\-device " id
+Remove a VFIO or PCI device by its device identifier.
+.SS Snapshot, Restore and Migration
+.TP
+.BI "snapshot " destination_url
+Create a snapshot of the VM and save it to the given URL (e.g.\&
+.IR file:///path/to/snapshot ).
+.TP
+.BI "restore " config
+Restore a VM from a previously taken snapshot.
+Syntax:
+.RS
+.nf
+\fIsource_url=<source_url>,prefault=on|off,
+memory_restore_mode=copy|ondemand,
+net_fds=<list_of_net_ids_with_their_associated_fds>,
+resume=true|false\fR
+.fi
+.RE
+.TP
+.BI "send\-migration " config
+Initiate a live migration of the VM to a remote destination.
+Syntax:
+.RS
+.nf
+\fIdestination_url=<url>,local=on|off,
+downtime_ms=<milliseconds>,timeout_s=<seconds>,
+timeout_strategy=cancel|ignore,
+connections=<amount>\fR
+.fi
+.RE
+.TP
+.BI "receive\-migration " receiver_url
+Prepare to receive a VM migration on the given URL (e.g.\&
+.IR tcp://0.0.0.0:1234 ).
+.TP
+.BI "coredump " file_path
+Create a coredump of the VM and write it to the specified file path.
+.SS Monitoring
+.TP
+.B ping
+Ping the VMM to verify API server availability.
+.TP
+.B info
+Display information about the current VM configuration and state.
+.TP
+.B counters
+Display performance counters from the VM.
+.SH EXAMPLES
+Ping a running VMM instance:
+.PP
+.RS 4
+.EX
+ch-remote \-\-api\-socket /tmp/ch.sock ping
+.EE
+.RE
+.PP
+Boot a VM that was previously created:
+.PP
+.RS 4
+.EX
+ch-remote \-\-api\-socket /tmp/ch.sock boot
+.EE
+.RE
+.PP
+Hotplug a disk to a running VM:
+.PP
+.RS 4
+.EX
+ch-remote \-\-api\-socket /tmp/ch.sock add\-disk \\
+    path=/path/to/disk.raw,id=disk1
+.EE
+.RE
+.PP
+Resize a VM to 4 vCPUs and 2G of memory:
+.PP
+.RS 4
+.EX
+ch-remote \-\-api\-socket /tmp/ch.sock resize \\
+    \-\-cpus 4 \-\-memory 2G
+.EE
+.RE
+.PP
+Take a snapshot:
+.PP
+.RS 4
+.EX
+ch-remote \-\-api\-socket /tmp/ch.sock snapshot \\
+    file:///tmp/vm-snapshot
+.EE
+.RE
+.PP
+Initiate a live migration:
+.PP
+.RS 4
+.EX
+ch-remote \-\-api\-socket /tmp/ch.sock send\-migration \\
+    destination_url=tcp://192.168.1.10:1234
+.EE
+.RE
+.SH SEE ALSO
+.BR cloud-hypervisor (1),
+.BR kvm (4)
+.PP
+Project documentation:
+.UR https://www.cloudhypervisor.org/
+.UE
+.SH AUTHORS
+The Cloud Hypervisor Authors.
+.SH LICENSE
+Apache-2.0 AND BSD-3-Clause

@@ -1,0 +1,450 @@
+.\" Man page for cloud-hypervisor(1)
+.TH CLOUD-HYPERVISOR 1 "2025-07-01" "cloud-hypervisor 52.0.0" "User Commands"
+.SH NAME
+cloud-hypervisor \- launch a cloud-hypervisor virtual machine monitor
+.SH SYNOPSIS
+.B cloud-hypervisor
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+.B cloud-hypervisor
+is an open source Virtual Machine Monitor (VMM) that runs on top of KVM.
+It focuses on running modern, cloud workloads with paravirtualised I/O
+(virtio), targeting recent 64-bit CPUs on x86_64 and aarch64 architectures.
+.PP
+The VMM can be configured entirely via command-line options or managed at
+runtime through an HTTP API exposed over a UNIX domain socket (see
+.BR ch-remote (1)).
+.SH OPTIONS
+.TP
+.BI \-\-api\-socket " path=<path>|fd=<fd>"
+HTTP API socket (UNIX domain socket). Specify either a filesystem path or an
+already-open file descriptor.
+.TP
+.BI \-\-balloon " params"
+Balloon device parameters.
+Syntax:
+.RS
+.nf
+\fIsize=<balloon_size>,deflate_on_oom=on|off,
+free_page_reporting=on|off,iommu=on|off,
+id=<device_id>,pci_segment=<segment_id>,
+pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI \-\-cmdline " string"
+Kernel command line passed to the guest.
+.TP
+.BI \-\-console " params"
+Control (virtio) console configuration.
+Syntax:
+.RS
+.nf
+\fIoff|null|pty|tty|file=<path>,iommu=on|off,
+id=<device_id>,pci_segment=<segment_id>,
+pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.br
+Default:
+.BR tty .
+.TP
+.BI \-\-cpus " params"
+vCPU configuration.
+Syntax:
+.RS
+.nf
+\fIboot=<boot_vcpus>,max=<max_vcpus>,
+topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,
+kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,
+affinity=<list_of_vcpus_with_their_associated_cpuset>,
+features=<list_of_features_to_enable>,nested=on|off,
+core_scheduling=vm|vcpu|off\fR
+.fi
+.RE
+.br
+Default:
+.BR boot=1,max_phys_bits=46 .
+.TP
+.BI \-\-debug\-console " params"
+Debug console configuration.
+Syntax:
+.IR off|pty|tty|file=<path> , iobase=<port_in_hex> .
+.br
+Default:
+.BR off,iobase=0xe9 .
+.TP
+.BI \-\-device " params ..."
+Direct device assignment (VFIO) parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fIpath=<device_path>,fd=<vfio_cdev_fd>,iommu=on|off,
+id=<device_id>,pci_segment=<segment_id>,
+pci_device_id=<pci_slot>,
+x_nv_gpudirect_clique=<clique_id>,
+x_exclude_mmap_bars=[<bar>...]\fR
+.fi
+.RE
+.TP
+.BI \-\-disk " params ..."
+Block device parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fIpath=<disk_image_path>,readonly=on|off,direct=on|off,
+iommu=on|off,num_queues=<number_of_queues>,
+queue_size=<size_of_each_queue>,vhost_user=on|off,
+socket=<vhost_user_socket_path>,bw_size=<bytes>,
+bw_one_time_burst=<bytes>,bw_refill_time=<ms>,
+ops_size=<io_ops>,ops_one_time_burst=<io_ops>,
+ops_refill_time=<ms>,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>,
+rate_limit_group=<group_id>,
+queue_affinity=<list_of_queue_indices_with_their_associated_cpuset>,
+serial=<serial_number>,backing_files=on|off,
+sparse=on|off,image_type=<raw,qcow2,vhd,vhdx>,
+lock_granularity=byte-range|full\fR
+.fi
+.RE
+.TP
+.BI \-\-event\-monitor " path=<path>|fd=<fd>"
+Event monitor output. Specify either a file path or a file descriptor where
+events are reported.
+.TP
+.BI \-\-firmware " path"
+Path to firmware that is loaded in an architecture-specific way (e.g.\& UEFI).
+.TP
+.BI \-\-fs " params ..."
+Virtio-fs device parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fItag=<tag_name>,socket=<socket_path>,
+num_queues=<number_of_queues>,
+queue_size=<size_of_each_queue>,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI \-\-generic\-vhost\-user " params ..."
+Generic vhost-user device parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fIvirtio_id=<ID_or_name>,socket=<socket_path>,
+queue_sizes=<list_of_queue_sizes>,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI \-\-initramfs " path"
+Path to an initramfs image to load into the guest.
+.TP
+.BI \-\-kernel " path"
+Path to a kernel or firmware supporting a PVH entry point (e.g.\&
+.IR vmlinux )
+or architecture equivalent.
+.TP
+.B \-\-landlock
+Enable Landlock-based filesystem sandboxing.
+.TP
+.BI \-\-landlock\-rules " params ..."
+Landlock rule parameters. May be specified multiple times.
+Syntax:
+.IR path=<path/to/{file/dir}> , access=[rw] .
+.TP
+.BI \-\-log\-file " path"
+Log file path. If not specified, standard error is used.
+.TP
+.BI \-\-log\-format " format"
+Log format string. Common tokens include
+.IR {boottime} ", " {wallclock} ", " {glog} ", " {localglog} ", "
+.IR {thread} ", " {level} ", " {location} ", " {msg} .
+.br
+Default:
+.BR \(dqcloud-hypervisor:\ {boottime}s:\ <{thread}>\ {level}:{location}\ --\ {msg}\(dq .
+.TP
+.BI \-\-memory " params"
+Guest memory configuration.
+Syntax:
+.RS
+.nf
+\fIsize=<guest_memory_size>,mergeable=on|off,
+shared=on|off,hugepages=on|off,
+hugepage_size=<hugepage_size>,
+hotplug_method=acpi|virtio-mem,
+hotplug_size=<hotpluggable_memory_size>,
+hotplugged_size=<hotplugged_memory_size>,
+prefault=on|off,reserve=on|off,thp=on|off\fR
+.fi
+.RE
+.br
+Default:
+.BR size=512M .
+.TP
+.BI \-\-memory\-zone " params ..."
+User-defined memory zone parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fIsize=<guest_memory_region_size>,file=<backing_file>,
+shared=on|off,hugepages=on|off,
+hugepage_size=<hugepage_size>,
+host_numa_node=<node_id>,id=<zone_identifier>,
+hotplug_size=<hotpluggable_memory_size>,
+hotplugged_size=<hotplugged_memory_size>,
+prefault=on|off,reserve=on|off\fR
+.fi
+.RE
+.TP
+.BI \-\-net " params ..."
+Network device parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fItap=<if_name>,ip=<ip_addr>,mask=<net_mask>,
+mac=<mac_addr>,fd=<[fd1,fd2,...]>,iommu=on|off,
+num_queues=<number_of_queues>,
+queue_size=<size_of_each_queue>,id=<device_id>,
+vhost_user=<vhost_user_enable>,
+socket=<vhost_user_socket_path>,
+vhost_mode=client|server,bw_size=<bytes>,
+bw_one_time_burst=<bytes>,bw_refill_time=<ms>,
+ops_size=<io_ops>,ops_one_time_burst=<io_ops>,
+ops_refill_time=<ms>,pci_segment=<segment_id>,
+pci_device_id=<pci_slot>,offload_tso=on|off,
+offload_ufo=on|off,offload_csum=on|off\fR
+.fi
+.RE
+.TP
+.B \-\-no\-shutdown
+Do not exit the VMM process when the guest shuts down. Useful for VMs that
+are expected to be rebooted or managed externally.
+.TP
+.BI \-\-numa " params ..."
+NUMA node configuration. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fIguest_numa_id=<node_id>,cpus=<cpus_id>,
+distances=<list_of_distances_to_destination_nodes>,
+device_id=<device_id>,
+memory_zones=<list_of_memory_zones>,
+pci_segments=<list_of_pci_segments>\fR
+.fi
+.RE
+.TP
+.BI \-\-pci\-segment " params ..."
+PCI segment parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fIpci_segment=<segment_id>,
+mmio32_aperture_weight=<scale>,
+mmio64_aperture_weight=<scale>\fR
+.fi
+.RE
+.TP
+.BI \-\-platform " params"
+Platform configuration parameters.
+Syntax:
+.RS
+.nf
+\fInum_pci_segments=<num_pci_segments>,
+iommu_segments=<list_of_segments>,
+iommu_address_width=<bits>,iommufd=on|off,
+iommufd_fd=<fd>,vfio_p2p_dma=on|off,
+system_manufacturer=<dmi_system_manufacturer>,
+system_product_name=<dmi_system_product_name>,
+system_version=<dmi_system_version>,
+system_serial_number=<dmi_system_serial_number>,
+system_uuid=<dmi_system_uuid>,
+system_sku_number=<dmi_system_sku_number>,
+system_family=<dmi_system_family>,
+oem_strings=<list_of_strings>,
+chassis_asset_tag=<dmi_chassis_asset_tag>\fR
+.fi
+.RE
+.TP
+.BI \-\-pmem " params ..."
+Persistent memory device parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fIfile=<backing_file_path>,size=<persistent_memory_size>,
+iommu=on|off,discard_writes=on|off,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.B \-\-pvpanic
+Enable the pvpanic device, allowing the guest to notify the host of kernel
+panics.
+.TP
+.BI \-\-rate\-limit\-group " params ..."
+Rate limit group parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fIbw_size=<bytes>,bw_one_time_burst=<bytes>,
+bw_refill_time=<ms>,ops_size=<io_ops>,
+ops_one_time_burst=<io_ops>,ops_refill_time=<ms>,
+id=<device_id>\fR
+.fi
+.RE
+.TP
+.BI \-\-restore " params"
+Restore a VM from a snapshot.
+Syntax:
+.RS
+.nf
+\fIsource_url=<source_url>,prefault=on|off,
+memory_restore_mode=copy|ondemand,
+net_fds=<list_of_net_ids_with_their_associated_fds>,
+resume=true|false\fR
+.fi
+.RE
+.IP
+.I source_url
+should be a valid URL (e.g.\&
+.IR file:///foo/bar " or " tcp://192.168.1.10/foo ).
+.I prefault
+controls eager prefaulting for the copy-based restore path (disabled by default).
+.I memory_restore_mode=copy
+preserves existing eager read-copy restore behavior;
+.I memory_restore_mode=ondemand
+enables lazy demand paging (requires userfaultfd).
+.I net_fds
+supplies new file descriptors for net devices backed by FDs.
+.I resume
+controls whether the VM is resumed immediately after restore.
+.TP
+.BI \-\-rng " params"
+Random number generator parameters.
+Syntax:
+.RS
+.nf
+\fIsrc=<entropy_source_path>,iommu=on|off,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.br
+Default:
+.BR src=/dev/urandom .
+.TP
+.BI \-\-rtc " [params]"
+Virtio RTC device parameters. Passing
+.B \-\-rtc
+with no arguments enables the device with default settings.
+Syntax:
+.RS
+.nf
+\fIiommu=on|off,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BI \-\-seccomp " true|false|log"
+Seccomp filtering mode. When
+.BR true ,
+system calls not required by the VMM are blocked. When
+.BR log ,
+violations are logged but not blocked.
+.br
+Default:
+.BR true .
+.TP
+.BI \-\-serial " mode"
+Serial port configuration.
+Syntax:
+.IR off|null|pty|tty|file=<path>|socket=<path> .
+.br
+Default:
+.BR null .
+.TP
+.BI \-\-tpm " params"
+TPM device parameters. Requires an external
+.BR swtpm (8)
+instance.
+Syntax:
+.IR socket=</path/to/a/socket> .
+.TP
+.BI \-\-user\-device " params ..."
+Userspace device parameters. May be specified multiple times.
+Syntax:
+.IR socket=<socket_path> , id=<device_id> , pci_segment=<segment_id> , pci_device_id=<pci_slot> .
+.TP
+.BR \-v ", " \-vv ", " \-vvv
+Increase verbosity of debugging output. May be repeated for more detail.
+.TP
+.BI \-\-vdpa " params ..."
+vDPA device parameters. May be specified multiple times.
+Syntax:
+.RS
+.nf
+\fIpath=<device_path>,num_queues=<number_of_queues>,
+iommu=on|off,id=<device_id>,
+pci_segment=<segment_id>,pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.BR \-V ", " \-\-version
+Print version information and exit.
+.TP
+.BI \-\-vsock " params"
+Virtio VSOCK device parameters.
+Syntax:
+.RS
+.nf
+\fIcid=<context_id>,socket=<socket_path>,iommu=on|off,
+id=<device_id>,pci_segment=<segment_id>,
+pci_device_id=<pci_slot>\fR
+.fi
+.RE
+.TP
+.B \-\-watchdog
+Enable the virtio-watchdog device.
+.TP
+.BR \-h ", " \-\-help
+Print a help summary and exit.
+.SH EXAMPLES
+Boot a VM with a kernel image and a root disk:
+.PP
+.RS 4
+.EX
+cloud-hypervisor \\
+    \-\-kernel /path/to/vmlinux \\
+    \-\-disk path=/path/to/rootfs.img \\
+    \-\-cpus boot=2 \\
+    \-\-memory size=1G \\
+    \-\-cmdline "root=/dev/vda1 console=hvc0" \\
+    \-\-api\-socket path=/tmp/ch.sock
+.EE
+.RE
+.PP
+Boot a VM using UEFI firmware:
+.PP
+.RS 4
+.EX
+cloud-hypervisor \\
+    \-\-firmware /usr/share/OVMF/OVMF_CODE.fd \\
+    \-\-disk path=/path/to/disk.qcow2 \\
+    \-\-cpus boot=4 \\
+    \-\-memory size=4G \\
+    \-\-net tap=tap0,mac=12:34:56:78:90:ab \\
+    \-\-api\-socket path=/tmp/ch.sock
+.EE
+.RE
+.SH SEE ALSO
+.BR ch-remote (1),
+.BR kvm (4),
+.BR qemu-system-x86_64 (1)
+.PP
+Project documentation:
+.UR https://www.cloudhypervisor.org/
+.UE
+.SH AUTHORS
+The Cloud Hypervisor Authors.
+.SH LICENSE
+Apache-2.0 AND BSD-3-Clause

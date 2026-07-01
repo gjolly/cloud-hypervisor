@@ -1,0 +1,4 @@
+# Rust binaries do not use C library string/memory functions directly;
+# _FORTIFY_SOURCE is a C preprocessor feature that does not apply to rustc.
+cloud-hypervisor: hardening-no-fortify-functions [usr/bin/cloud-hypervisor]
+cloud-hypervisor: hardening-no-fortify-functions [usr/bin/ch-remote]

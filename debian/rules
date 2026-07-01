@@ -1,0 +1,67 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE = 1
+export CARGO_HOME = $(CURDIR)/debian/cargo_home
+
+include /usr/share/dpkg/architecture.mk
+include /usr/share/dpkg/pkg-info.mk
+
+ifeq ($(DEB_HOST_ARCH), amd64)
+    RUST_TARGET := x86_64-unknown-linux-gnu
+    CARGO_FEATURES := --no-default-features --features kvm
+else ifeq ($(DEB_HOST_ARCH), arm64)
+    RUST_TARGET := aarch64-unknown-linux-gnu
+    CARGO_FEATURES := --no-default-features --features kvm
+else
+    $(error Unsupported architecture $(DEB_HOST_ARCH))
+endif
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	mkdir -p $(CARGO_HOME)
+	mkdir -p .cargo
+	cp debian/cargo-config.toml .cargo/config.toml
+
+override_dh_auto_build:
+	cargo build --release --target=$(RUST_TARGET) \
+		--offline $(CARGO_FEATURES)
+
+override_dh_auto_test:
+
+override_dh_auto_install:
+	install -D -m 0755 target/$(RUST_TARGET)/release/cloud-hypervisor \
+		debian/cloud-hypervisor/usr/bin/cloud-hypervisor
+	install -D -m 0755 target/$(RUST_TARGET)/release/ch-remote \
+		debian/cloud-hypervisor/usr/bin/ch-remote
+
+override_dh_auto_clean:
+	cargo clean 2>/dev/null || true
+	rm -rf .cargo $(CARGO_HOME)
+
+# dh_clean removes *.orig files (treating them as patch artifacts), but
+# vendored crates ship Cargo.toml.orig and cargo verifies checksums for
+# every file listed in .cargo-checksum.json.  Exclude vendor/ from the
+# cleanup so those files survive into the build.
+override_dh_clean:
+	dh_clean -Xvendor
+
+override_dh_dwz:
+override_dh_strip:
+	strip --strip-unneeded --remove-section=.comment --remove-section=.note \
+		debian/cloud-hypervisor/usr/bin/cloud-hypervisor \
+		debian/cloud-hypervisor/usr/bin/ch-remote
+
+# Generate the vendored Rust dependencies tarball.
+# Usage: debian/rules vendor-tarball
+VENDOR_TARBALL = ../$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig-vendor.tar.xz
+
+vendor-tarball:
+	rm -rf vendor
+	cargo vendor
+	tar cJf $(VENDOR_TARBALL) vendor/
+	rm -rf vendor
+	@echo "Created $(VENDOR_TARBALL)"
+
+.PHONY: vendor-tarball
