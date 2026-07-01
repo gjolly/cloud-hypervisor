@@ -1,0 +1,54 @@
+Description: vmm: Allow riscv64 path syscalls in seccomp filters
+ riscv64 does not provide the legacy readlink and unlink syscalls, so
+ libc uses readlinkat and unlinkat for paths that are otherwise allowed
+ on other architectures.
+ .
+ Permit readlinkat and unlinkat for the VMM and vCPU seccomp filters on
+ riscv64, matching the existing aarch64 rules.
+ .
+ Without this patch cloud-hypervisor is killed by its own seccomp
+ filters on riscv64 whenever glibc resolves readlink/unlink to the
+ *at variants.
+Author: wangyf0611 <wangyufeng@iscas.ac.cn>
+Origin: upstream, https://github.com/cloud-hypervisor/cloud-hypervisor/commit/7d1321515cacd5dcfb85f559b3495a0306b1f57b
+Applied-Upstream: commit:7d1321515cacd5dcfb85f559b3495a0306b1f57b
+Last-Update: 2026-07-01
+---
+--- a/vmm/src/seccomp_filters.rs
++++ b/vmm/src/seccomp_filters.rs
+@@ -709,7 +709,7 @@ fn vmm_thread_rules(
+         (libc::SYS_readv, vec![]),
+         #[cfg(target_arch = "x86_64")]
+         (libc::SYS_readlink, vec![]),
+-        #[cfg(target_arch = "aarch64")]
++        #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
+         (libc::SYS_readlinkat, vec![]),
+         (libc::SYS_recvfrom, vec![]),
+         (libc::SYS_recvmsg, vec![]),
+@@ -752,7 +752,7 @@ fn vmm_thread_rules(
+         ),
+         #[cfg(target_arch = "x86_64")]
+         (libc::SYS_unlink, vec![]),
+-        #[cfg(target_arch = "aarch64")]
++        #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
+         (libc::SYS_unlinkat, vec![]),
+         (libc::SYS_userfaultfd, vec![]),
+         (libc::SYS_wait4, vec![]),
+@@ -917,7 +917,7 @@ fn vcpu_thread_rules(
+         (libc::SYS_read, vec![]),
+         #[cfg(target_arch = "x86_64")]
+         (libc::SYS_readlink, vec![]),
+-        #[cfg(target_arch = "aarch64")]
++        #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
+         (libc::SYS_readlinkat, vec![]),
+         (libc::SYS_recvfrom, vec![]),
+         (libc::SYS_recvmsg, vec![]),
+@@ -934,7 +934,7 @@ fn vcpu_thread_rules(
+         (libc::SYS_tkill, vec![]),
+         #[cfg(target_arch = "x86_64")]
+         (libc::SYS_unlink, vec![]),
+-        #[cfg(target_arch = "aarch64")]
++        #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
+         (libc::SYS_unlinkat, vec![]),
+         (libc::SYS_write, vec![]),
+         (libc::SYS_writev, vec![]),

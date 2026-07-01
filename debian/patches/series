@@ -1,1 +1,2 @@
 0001-arch-vmm-fix-riscv64-build-gaps.patch
+0002-vmm-allow-riscv64-path-syscalls-in-seccomp-filters.patch
