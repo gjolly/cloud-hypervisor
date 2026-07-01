@@ -2,22 +2,14 @@
 
 export DH_VERBOSE = 1
 export CARGO_HOME = $(CURDIR)/debian/cargo_home
+# Use the system libssl-dev; do not let openssl-sys vendor/build OpenSSL from
+# source (it does not recognise all Rust target triples, e.g. riscv64a23).
+export OPENSSL_NO_VENDOR = 1
 
 include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
 
-ifeq ($(DEB_HOST_ARCH), amd64)
-    RUST_TARGET := x86_64-unknown-linux-gnu
-    CARGO_FEATURES := --no-default-features --features kvm
-else ifeq ($(DEB_HOST_ARCH), arm64)
-    RUST_TARGET := aarch64-unknown-linux-gnu
-    CARGO_FEATURES := --no-default-features --features kvm
-else ifeq ($(DEB_HOST_ARCH), riscv64)
-    RUST_TARGET := riscv64gc-unknown-linux-gnu
-    CARGO_FEATURES := --no-default-features --features kvm
-else
-    $(error Unsupported architecture $(DEB_HOST_ARCH))
-endif
+CARGO_FEATURES := --no-default-features --features kvm
 
 %:
 	dh $@
@@ -28,15 +20,15 @@ override_dh_auto_configure:
 	cp debian/cargo-config.toml .cargo/config.toml
 
 override_dh_auto_build:
-	cargo build --release --target=$(RUST_TARGET) \
-		--offline $(CARGO_FEATURES)
+	cargo build --release --offline $(CARGO_FEATURES) \
+		--package cloud-hypervisor
 
 override_dh_auto_test:
 
 override_dh_auto_install:
-	install -D -m 0755 target/$(RUST_TARGET)/release/cloud-hypervisor \
+	install -D -m 0755 target/release/cloud-hypervisor \
 		debian/cloud-hypervisor/usr/bin/cloud-hypervisor
-	install -D -m 0755 target/$(RUST_TARGET)/release/ch-remote \
+	install -D -m 0755 target/release/ch-remote \
 		debian/cloud-hypervisor/usr/bin/ch-remote
 
 override_dh_auto_clean:
