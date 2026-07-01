@@ -1,0 +1,29 @@
+Description: arch: riscv64: add missing Bytes import in UEFI loader
+ The riscv64 uefi.rs calls read_exact_volatile_from() which is provided
+ by the vm_memory::Bytes trait, but the trait is not imported.  The
+ identical aarch64/uefi.rs already has the import.  Without it the build
+ fails with:
+ .
+   error[E0599]: no method named `read_exact_volatile_from` found for
+   reference `&M` in the current scope
+ .
+ This is a subset of the upstream commit which also widens cfg gates for
+ Instant and UEFI flash error paths on riscv64; those are feature
+ enablement changes and are left for the next upstream release.
+Author: wangyf0611 <wangyufeng@iscas.ac.cn>
+Origin: upstream, https://github.com/cloud-hypervisor/cloud-hypervisor/commit/1e18716fbdc01df4538bb1604f6019d95ed29da3
+Bug: https://github.com/cloud-hypervisor/cloud-hypervisor/issues/6978
+Applied-Upstream: commit:1e18716fbdc01df4538bb1604f6019d95ed29da3
+Last-Update: 2026-07-01
+---
+--- a/arch/src/riscv64/uefi.rs
++++ b/arch/src/riscv64/uefi.rs
+@@ -7,7 +7,7 @@
+ use std::result;
+ 
+ use thiserror::Error;
+-use vm_memory::{GuestAddress, GuestMemory};
++use vm_memory::{Bytes, GuestAddress, GuestMemory};
+ 
+ /// Errors thrown while loading UEFI binary
+ #[derive(Debug, Error)]

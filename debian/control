@@ -13,7 +13,7 @@ Build-Depends:
 Rules-Requires-Root: no
 
 Package: cloud-hypervisor
-Architecture: amd64 arm64
+Architecture: amd64 arm64 riscv64
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Virtual Machine Monitor running on top of KVM
  Cloud Hypervisor is an open source Virtual Machine Monitor (VMM) that

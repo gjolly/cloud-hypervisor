@@ -1,4 +1,4 @@
-cloud-hypervisor (52.0-0ubuntu1) stonking; urgency=medium
+cloud-hypervisor (52.0-0ubuntu1~ppa7) stonking; urgency=medium
 
   * New upstream release v52.0.
   * Rewrite debian packaging for Ubuntu archive inclusion.
