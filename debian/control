@@ -20,7 +20,7 @@ Description: Virtual Machine Monitor running on top of KVM
  runs on top of KVM. The project focuses on exclusively running modern,
  cloud workloads, on top of a limited set of hardware architectures and
  platforms. Cloud workloads refers to those that are usually run by
- customers inside a cloud provider. For our purposes this means modern
+ customers inside a cloud provider. In this context, this means modern
  Linux distributions with most I/O handled by paravirtualised devices
  (i.e. virtio), no requirement for legacy devices and recent CPUs and
  KVM.
