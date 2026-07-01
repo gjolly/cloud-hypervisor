@@ -11,9 +11,1070 @@ Files: debian/*
 Copyright: 2026 Gauthier Jolly <gauthier.jolly@canonical.com>
 License: Apache-2.0
 
+Files: vendor/unicode-ident/*
+Copyright: David Tolnay <dtolnay@gmail.com>
+License: (MIT OR Apache-2.0) AND Unicode-3.0
+
+Files: vendor/managed/*
+Copyright: whitequark <whitequark@whitequark.org>
+License: 0BSD
+
+Files: vendor/adler2/*
+Copyright: Jonas Schievink <jonasschievink@gmail.com>
+           oyvindln <oyvindln@users.noreply.github.com>
+License: 0BSD OR Apache-2.0 OR MIT
+
+Files: vendor/acpi_tables/* vendor/iommufd-bindings/*
+ vendor/iommufd-ioctls/* vendor/vfio_user/* vendor/vhost-user-backend/*
+Copyright: The Cloud Hypervisor Authors
 License: Apache-2.0
- On Debian systems, the complete text of the Apache License, Version 2.0
- can be found in "/usr/share/common-licenses/Apache-2.0".
+
+Files: vendor/kvm-bindings/*
+Copyright: Amazon firecracker team <firecracker-devel@amazon.com>
+License: Apache-2.0
+
+Files: vendor/micro_http/*
+Copyright: Amazon Firecracker team <firecracker-devel@amazon.com>
+License: Apache-2.0
+
+Files: vendor/mintex/*
+Copyright: garypen <garypen@gmail.com>
+License: Apache-2.0
+
+Files: vendor/open-enum/*
+Copyright: Alyssa Haroldsen <kupiakos@google.com>
+License: Apache-2.0
+
+Files: vendor/open-enum-derive/*
+Copyright: open-enum-derive contributors
+License: Apache-2.0
+
+Files: vendor/linux-loader/*
+Copyright: The rust-vmm maintainers
+           rust-vmm AWS maintainers <rust-vmm-maintainers@amazon.com>
+           Cathy Zhang <cathy.zhang@intel.com>
+License: Apache-2.0 AND BSD-3-Clause
+
+Files: vendor/virtio-queue/*
+Copyright: The Chromium OS Authors
+License: Apache-2.0 AND BSD-3-Clause
+
+Files: vendor/linux-raw-sys/*
+Copyright: Dan Gohman <dev@sunfishcode.online>
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/rustix/*
+Copyright: Dan Gohman <dev@sunfishcode.online>
+           Jakub Konka <kubkon@jakubkonka.com>
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/wasi/*
+Copyright: The Cranelift Project Developers
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/wasip2/*
+Copyright: wasip2 contributors
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/wasip3/*
+Copyright: wasip3 contributors
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/wasm-encoder/*
+Copyright: Nick Fitzgerald <fitzgen@gmail.com>
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/wasm-metadata/*
+Copyright: wasm-metadata contributors
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/wasmparser/*
+Copyright: Yury Delendik <ydelendik@mozilla.com>
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/wit-bindgen/* vendor/wit-bindgen-0.51.0/*
+ vendor/wit-bindgen-core/* vendor/wit-bindgen-rust/*
+ vendor/wit-bindgen-rust-macro/* vendor/wit-parser/*
+Copyright: Alex Crichton <alex@alexcrichton.com>
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/wit-component/*
+Copyright: Peter Huene <peter@huene.dev>
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+
+Files: vendor/zerocopy/* vendor/zerocopy-derive/*
+Copyright: Joshua Liebow-Feeser <joshlf@google.com>
+           Jack Wrenn <jswrenn@amazon.com>
+License: Apache-2.0 OR BSD-2-Clause OR MIT
+
+Files: vendor/mshv-bindings/* vendor/mshv-ioctls/*
+Copyright: Microsoft Authors
+License: Apache-2.0 OR BSD-3-Clause
+
+Files: vendor/seccompiler/*
+Copyright: Amazon Firecracker Team <firecracker-maintainers@amazon.com>
+License: Apache-2.0 OR BSD-3-Clause
+
+Files: vendor/vfio-bindings/*
+Copyright: The Cloud Hypervisor Authors
+License: Apache-2.0 OR BSD-3-Clause
+
+Files: vendor/vfio-ioctls/*
+Copyright: The Cloud Hypervisor Authors
+           Liu Jiang <gerry@linux.alibaba.com>
+License: Apache-2.0 OR BSD-3-Clause
+
+Files: vendor/vhost/* vendor/vm-memory/*
+Copyright: Liu Jiang <gerry@linux.alibaba.com>
+License: Apache-2.0 OR BSD-3-Clause
+
+Files: vendor/virtio-bindings/*
+Copyright: Sergio Lopez <slp@redhat.com>
+License: Apache-2.0 OR BSD-3-Clause
+
+Files: vendor/vm-fdt/*
+Copyright: The Chromium OS Authors
+License: Apache-2.0 OR BSD-3-Clause
+
+Files: vendor/num_enum/* vendor/num_enum_derive/*
+Copyright: Daniel Wagner-Hall <dawagner@gmail.com>
+           Daniel Henry-Mantilla <daniel.henry.mantilla@gmail.com>
+           Vincent Esche <regexident@gmail.com>
+License: Apache-2.0 OR BSD-3-Clause OR MIT
+
+Files: vendor/r-efi/* vendor/r-efi-5.3.0/*
+Copyright: r-efi contributors
+License: Apache-2.0 OR LGPL-2.1-or-later OR MIT
+
+Files: vendor/addr2line/*
+Copyright: 2016-2018 The gimli Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/anstream/* vendor/anstyle/* vendor/anstyle-parse/*
+ vendor/anstyle-query/* vendor/anstyle-wincon/* vendor/clap/*
+ vendor/clap_builder/* vendor/clap_lex/* vendor/colorchoice/*
+ vendor/env_filter/* vendor/env_logger/* vendor/is_terminal_polyfill/*
+ vendor/once_cell_polyfill/* vendor/toml_datetime/* vendor/toml_edit/*
+ vendor/toml_parser/*
+Copyright: Individual contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/anyhow/* vendor/async-trait/* vendor/itoa/*
+ vendor/prettyplease/* vendor/quote/* vendor/remain/* vendor/rustversion/*
+ vendor/semver/* vendor/serde_repr/* vendor/syn/* vendor/thiserror/*
+ vendor/thiserror-impl/*
+Copyright: David Tolnay <dtolnay@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/arc-swap/*
+Copyright: Michal 'vorner' Vaner <vorner@vorner.cz>
+License: Apache-2.0 OR MIT
+
+Files: vendor/async-broadcast/*
+Copyright: Stjepan Glavina <stjepang@gmail.com>
+           Yoshua Wuyts <yoshuawuyts@gmail.com>
+           Zeeshan Ali Khan <zeeshanak@gnome.org>
+License: Apache-2.0 OR MIT
+
+Files: vendor/async-channel/* vendor/async-io/* vendor/async-lock/*
+ vendor/async-process/* vendor/async-task/* vendor/blocking/*
+ vendor/fastrand/*
+Copyright: Stjepan Glavina <stjepang@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/async-executor/* vendor/event-listener/* vendor/piper/*
+ vendor/polling/*
+Copyright: Stjepan Glavina <stjepang@gmail.com>
+           John Nunley <dev@notgull.net>
+License: Apache-2.0 OR MIT
+
+Files: vendor/async-recursion/*
+Copyright: Robert Usher <266585+dcchut@users.noreply.github.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/async-signal/* vendor/event-listener-strategy/*
+Copyright: John Nunley <dev@notgull.net>
+License: Apache-2.0 OR MIT
+
+Files: vendor/atomic-waker/* vendor/futures-lite/*
+Copyright: Stjepan Glavina <stjepang@gmail.com>
+           Contributors to futures-rs
+License: Apache-2.0 OR MIT
+
+Files: vendor/autocfg/*
+Copyright: Josh Stone <cuviper@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/backtrace/* vendor/bitflags/* vendor/bitflags-1.3.2/*
+ vendor/glob/* vendor/libc/* vendor/log/* vendor/num-traits/*
+ vendor/rustc-hash/*
+Copyright: The Rust Project Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/block-buffer/* vendor/chacha20/* vendor/const-oid/*
+ vendor/cpufeatures/* vendor/crypto-common/* vendor/digest/*
+ vendor/hybrid-array/* vendor/sha2/*
+Copyright: RustCrypto Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/bumpalo/*
+Copyright: Nick Fitzgerald <fitzgen@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/cc/* vendor/cfg-if/* vendor/jobserver/* vendor/openssl-src/*
+ vendor/pkg-config/* vendor/rustc-demangle/* vendor/wait-timeout/*
+Copyright: Alex Crichton <alex@alexcrichton.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/concat-idents/*
+Copyright: Dzenan Jupic <info@dzenanjupic.de>
+License: Apache-2.0 OR MIT
+
+Files: vendor/concurrent-queue/*
+Copyright: Stjepan Glavina <stjepang@gmail.com>
+           Taiki Endo <te316e89@gmail.com>
+           John Nunley <dev@notgull.net>
+License: Apache-2.0 OR MIT
+
+Files: vendor/crc32fast/*
+Copyright: Sam Rijs <srijs@airpost.net>
+           Alex Crichton <alex@alexcrichton.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/crossbeam-utils/*
+Copyright: 2019 The Crossbeam Project Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/dhat/*
+Copyright: Nicholas Nethercote <n.nethercote@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/dirs/* vendor/dirs-sys/*
+Copyright: Simon Ochsenreither <simon@ochsenreither.de>
+License: Apache-2.0 OR MIT
+
+Files: vendor/either/* vendor/itertools/* vendor/scopeguard/*
+Copyright: bluss
+License: Apache-2.0 OR MIT
+
+Files: vendor/enumflags2/* vendor/enumflags2_derive/*
+Copyright: maik klein <maikklein@googlemail.com>
+           Maja Kądziołka <maya@compilercrim.es>
+License: Apache-2.0 OR MIT
+
+Files: vendor/equivalent/*
+Copyright: equivalent contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/errno/*
+Copyright: Chris Wong <lambda.fairy@gmail.com>
+           Dan Gohman <dev@sunfishcode.online>
+License: Apache-2.0 OR MIT
+
+Files: vendor/find-msvc-tools/*
+Copyright: 2014 Alex Crichton
+License: Apache-2.0 OR MIT
+
+Files: vendor/flate2/*
+Copyright: Alex Crichton <alex@alexcrichton.com>
+           Josh Triplett <josh@joshtriplett.org>
+License: Apache-2.0 OR MIT
+
+Files: vendor/flume/*
+Copyright: Joshua Barretto <joshua.s.barretto@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/futures/* vendor/futures-channel/* vendor/futures-core/*
+ vendor/futures-executor/* vendor/futures-io/* vendor/futures-macro/*
+ vendor/futures-sink/* vendor/futures-task/* vendor/futures-util/*
+Copyright: 2016 Alex Crichton
+           2017 The Tokio Authors
+License: Apache-2.0 OR MIT
+
+Files: vendor/gdbstub/* vendor/gdbstub_arch/*
+Copyright: Daniel Prilik <danielprilik@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/getrandom/* vendor/getrandom-0.2.17/* vendor/getrandom-0.3.4/*
+ vendor/rand_core/*
+Copyright: The Rand Project Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/gimli/* vendor/heck/*
+Copyright: 2015 The Rust Project Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/hashbrown/* vendor/hashbrown-0.15.5/* vendor/lock_api/*
+ vendor/parking_lot/* vendor/parking_lot_core/*
+Copyright: Amanieu d'Antras <amanieu@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/hermit-abi/*
+Copyright: Stefan Lankes
+License: Apache-2.0 OR MIT
+
+Files: vendor/hex/*
+Copyright: KokaKiwi <kokakiwi@kokakiwi.net>
+License: Apache-2.0 OR MIT
+
+Files: vendor/id-arena/*
+Copyright: Nick Fitzgerald <fitzgen@gmail.com>
+           Aleksey Kladov <aleksey.kladov@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/ident_case/*
+Copyright: Ted Driggs <ted.driggs@outlook.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/indexmap/*
+Copyright: indexmap contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/io-uring/*
+Copyright: quininer <quininer@live.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/ipnetwork/*
+Copyright: Abhishek Chanda <abhishek.becs@gmail.com>
+           Linus Färnstrand <faern@faern.net>
+License: Apache-2.0 OR MIT
+
+Files: vendor/js-sys/* vendor/wasm-bindgen/* vendor/wasm-bindgen-macro/*
+ vendor/wasm-bindgen-macro-support/* vendor/wasm-bindgen-shared/*
+Copyright: The wasm-bindgen Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/kvm-ioctls/*
+Copyright: Amazon Firecracker Team <firecracker-maintainers@amazon.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/landlock/*
+Copyright: 2020 Mickaël Salaün
+License: Apache-2.0 OR MIT
+
+Files: vendor/lazy_static/*
+Copyright: Marvin Löbel <loebel.marvin@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/leb128fmt/*
+Copyright: Bryant Luk <code@bryantluk.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/libssh2-sys/* vendor/ssh2/*
+Copyright: Alex Crichton <alex@alexcrichton.com>
+           Wez Furlong <wez@wezfurlong.org>
+           Matteo Bigoi <bigo@crisidev.org>
+License: Apache-2.0 OR MIT
+
+Files: vendor/libz-sys/*
+Copyright: Alex Crichton <alex@alexcrichton.com>
+           Josh Triplett <josh@joshtriplett.org>
+           Sebastian Thiel <sebastian.thiel@icloud.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/object/*
+Copyright: 2015 The Gimli Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/once_cell/*
+Copyright: Aleksey Kladov <aleksey.kladov@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/ordered-stream/*
+Copyright: Daniel De Graaf <code@danieldg.net>
+           Zeeshan Ali Khan <zeeshanak@gnome.org>
+License: Apache-2.0 OR MIT
+
+Files: vendor/parking/*
+Copyright: Stjepan Glavina <stjepang@gmail.com>
+           The Rust Project Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/pastey/*
+Copyright: Aditya Kumar <git@adityais.dev>
+           David Tolnay <dtolnay@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/pin-project-lite/*
+Copyright: pin-project-lite contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/pnet/* vendor/pnet_macros_support/* vendor/pnet_packet/*
+ vendor/pnet_transport/*
+Copyright: Robert Clipsham <robert@octarineparrot.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/pnet_base/* vendor/pnet_datalink/* vendor/pnet_sys/*
+Copyright: Robert Clipsham <robert@octarineparrot.com>
+           Linus Färnstrand <faern@faern.net>
+License: Apache-2.0 OR MIT
+
+Files: vendor/pnet_macros/*
+Copyright: Robert Clipsham <robert@octarineparrot.com>
+           Pierre Chifflier <chifflier@wzdftpd.net>
+License: Apache-2.0 OR MIT
+
+Files: vendor/portable-atomic/*
+Copyright: portable-atomic contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/portable-atomic-util/*
+Copyright: portable-atomic-util contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/proc-macro-crate/*
+Copyright: Bastian Köcher <git@kchr.de>
+License: Apache-2.0 OR MIT
+
+Files: vendor/proc-macro2/*
+Copyright: David Tolnay <dtolnay@gmail.com>
+           Alex Crichton <alex@alexcrichton.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/rand/*
+Copyright: The Rand Project Developers
+           The Rust Project Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/regex/* vendor/regex-automata/* vendor/regex-syntax/*
+Copyright: The Rust Project Developers
+           Andrew Gallant <jamslam@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/serde/* vendor/serde_core/* vendor/serde_derive/*
+ vendor/serde_json/*
+Copyright: Erick Tryzelaar <erick.tryzelaar@gmail.com>
+           David Tolnay <dtolnay@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/serde_with/*
+Copyright: Jonas Bushart
+           Marcin Kaźmierczak
+License: Apache-2.0 OR MIT
+
+Files: vendor/serde_with_macros/*
+Copyright: Jonas Bushart
+License: Apache-2.0 OR MIT
+
+Files: vendor/shlex/*
+Copyright: comex <comexk@gmail.com>
+           Fenhl <fenhl@fenhl.net>
+           Adrian Taylor <adetaylor@chromium.org>
+           Alex Touchet <alextouchet@outlook.com>
+           Daniel Parks <dp+git@oxidized.org>
+           Garrett Berg <googberg@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/signal-hook/*
+Copyright: Michal 'vorner' Vaner <vorner@vorner.cz>
+           Thomas Himmelstoss <thimm@posteo.de>
+License: Apache-2.0 OR MIT
+
+Files: vendor/signal-hook-registry/*
+Copyright: Michal 'vorner' Vaner <vorner@vorner.cz>
+           Masaki Hara <ackie.h.gmai@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/smallvec/*
+Copyright: The Servo Project Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/static_assertions/*
+Copyright: Nikolai Vazquez
+License: Apache-2.0 OR MIT
+
+Files: vendor/tempfile/*
+Copyright: Steven Allen <steven@stebalien.com>
+           The Rust Project Developers
+           Ashley Mannix <ashleymannix@live.com.au>
+           Jason White <me@jasonwhite.io>
+License: Apache-2.0 OR MIT
+
+Files: vendor/terminal_size/*
+Copyright: Andrew Chin <achin@eminence32.net>
+License: Apache-2.0 OR MIT
+
+Files: vendor/thousands/*
+Copyright: Jesse A. Tov <jesse.tov@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/typenum/*
+Copyright: Paho Lurie-Gregg <paho@paholg.com>
+           Andre Bogus <bogusandre@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/unicode-xid/*
+Copyright: erick.tryzelaar <erick.tryzelaar@gmail.com>
+           kwantam <kwantam@gmail.com>
+           Manish Goregaokar <manishsmail@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/utf8parse/*
+Copyright: Joe Wilm <joe@jwilm.com>
+           Christian Duerr <contact@christianduerr.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/uuid/*
+Copyright: Ashley Mannix<ashleymannix@live.com.au>
+           Dylan DPC<dylan.dpc@gmail.com>
+           Hunar Roop Kahlon<hunar.roop@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/vcpkg/*
+Copyright: Jim McGrath <jimmc2@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/winapi/* vendor/winapi-i686-pc-windows-gnu/*
+ vendor/winapi-x86_64-pc-windows-gnu/*
+Copyright: Peter Atashian <retep998@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/windows-link/* vendor/windows-sys/*
+Copyright: Microsoft Corporation
+License: Apache-2.0 OR MIT
+
+Files: vendor/zstd-safe/* vendor/zstd-sys/*
+Copyright: Alexandre Bury <alexandre.bury@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/miniz_oxide/*
+Copyright: Frommi <daniil.liferenko@gmail.com>
+           oyvindln <oyvindln@users.noreply.github.com>
+           Rich Geldreich richgel99@gmail.com
+License: Apache-2.0 OR MIT OR Zlib
+
+Files: vendor/vmm-sys-util/*
+Copyright: Intel Virtualization Team <vmm-maintainers@intel.com>
+License: BSD-3-Clause
+
+Files: vendor/bitfield-struct/* vendor/bitfield-struct-0.10.1/*
+Copyright: Lars Wrenger <lars@wrenger.net>
+License: MIT
+
+Files: vendor/crc-any/* vendor/debug-helper/*
+Copyright: Magic Len <len@magiclen.org>
+License: MIT
+
+Files: vendor/darling/* vendor/darling_core/* vendor/darling_macro/*
+Copyright: Ted Driggs <ted.driggs@outlook.com>
+License: MIT
+
+Files: vendor/endi/*
+Copyright: Zeeshan Ali Khan <zeenix@gmail.com>
+License: MIT
+
+Files: vendor/iced-x86/*
+Copyright: iced-x86 contributors
+License: MIT
+
+Files: vendor/igvm/* vendor/igvm_defs/* vendor/range_map_vec/*
+Copyright: Microsoft
+License: MIT
+
+Files: vendor/libredox/*
+Copyright: 4lDO2 <4lDO2@protonmail.com>
+License: MIT
+
+Files: vendor/memoffset/*
+Copyright: Gilad Naaman <gilad.naaman@gmail.com>
+License: MIT
+
+Files: vendor/no-std-net/*
+Copyright: M@ Dunlap <mattdunlap@gmail.com>
+License: MIT
+
+Files: vendor/openssl-sys/*
+Copyright: Alex Crichton <alex@alexcrichton.com>
+           Steven Fackler <sfackler@gmail.com>
+License: MIT
+
+Files: vendor/redox_syscall/*
+Copyright: Jeremy Soller <jackpot51@gmail.com>
+License: MIT
+
+Files: vendor/redox_users/*
+Copyright: Jose Narvaez <goyox86@gmail.com>
+           Wesley Hershberger <mggmugginsmc@gmail.com>
+License: MIT
+
+Files: vendor/simd-adler32/*
+Copyright: Marvin Countryman <me@maar.vin>
+License: MIT
+
+Files: vendor/slab/*
+Copyright: Carl Lerche <me@carllerche.com>
+License: MIT
+
+Files: vendor/spin/*
+Copyright: Mathijs van de Nes <git@mathijs.vd-nes.nl>
+           John Ericson <git@JohnEricson.me>
+           Joshua Barretto <joshua.s.barretto@gmail.com>
+License: MIT
+
+Files: vendor/strsim/*
+Copyright: Danny Guo <danny@dannyguo.com>
+           maxbachmann <oss@maxbachmann.de>
+License: MIT
+
+Files: vendor/tracing/*
+Copyright: Eliza Weisman <eliza@buoyant.io>
+           Tokio Contributors <team@tokio.rs>
+License: MIT
+
+Files: vendor/tracing-attributes/*
+Copyright: Tokio Contributors <team@tokio.rs>
+           Eliza Weisman <eliza@buoyant.io>
+           David Barsky <dbarsky@amazon.com>
+License: MIT
+
+Files: vendor/tracing-core/*
+Copyright: Tokio Contributors <team@tokio.rs>
+License: MIT
+
+Files: vendor/uds_windows/*
+Copyright: Azure IoT Edge Devs
+           Harald Hoyer <harald@redhat.com>
+License: MIT
+
+Files: vendor/winnow/*
+Copyright: winnow contributors
+License: MIT
+
+Files: vendor/zbus/* vendor/zbus_names/* vendor/zvariant/*
+ vendor/zvariant_derive/*
+Copyright: Zeeshan Ali Khan <zeeshanak@gnome.org>
+License: MIT
+
+Files: vendor/zbus_macros/*
+Copyright: Marc-André Lureau <marcandre.lureau@redhat.com>
+           Zeeshan Ali Khan <zeeshanak@gnome.org>
+License: MIT
+
+Files: vendor/zmij/*
+Copyright: David Tolnay <dtolnay@gmail.com>
+License: MIT
+
+Files: vendor/zstd/*
+Copyright: Alexandre Bury <alexandre.bury@gmail.com>
+License: MIT
+
+Files: vendor/zvariant_utils/*
+Copyright: Zeeshan Ali Khan <zeeshanak@gnome.org>
+           turbocooler <turbocooler@cocaine.ninja>
+License: MIT
+
+Files: vendor/aho-corasick/* vendor/byteorder/* vendor/jiff/*
+ vendor/jiff-static/*
+Copyright: Andrew Gallant <jamslam@gmail.com>
+License: MIT OR Unlicense
+
+Files: vendor/memchr/*
+Copyright: Andrew Gallant <jamslam@gmail.com>
+           bluss
+License: MIT OR Unlicense
+
+Files: vendor/epoll/*
+Copyright: Nathan Sizemore <nathanrsizemore@gmail.com>
+License: MPL-2.0
+
+Files: vendor/fdt/*
+Copyright: Wesley Norris <repnop@outlook.com>
+License: MPL-2.0
+
+Files: vendor/option-ext/*
+Copyright: Simon Ochsenreither <simon@ochsenreither.de>
+License: MPL-2.0
+
+Files: vendor/foldhash/*
+Copyright: Orson Peters <orsonpeters@gmail.com>
+License: Zlib
+
+License: (MIT OR Apache-2.0) AND Unicode-3.0
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ .
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ UNICODE LICENSE V3
+ .
+ Distributed under the Terms of Use in
+ https://www.unicode.org/copyright.html.
+
+License: 0BSD
+ Permission to use, copy, modify, and/or distribute this software for
+ any purpose with or without fee is hereby granted.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+License: 0BSD OR Apache-2.0 OR MIT
+ Permission to use, copy, modify, and/or distribute this software for
+ any purpose with or without fee is hereby granted.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ .
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: Apache-2.0
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+
+License: Apache-2.0 AND BSD-3-Clause
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+ .
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+ .
+ 3. Neither the name of the copyright holder nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+
+License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ --- LLVM Exception ---
+ .
+ As an exception, if, as a result of your compiling your source code,
+ portions of this Software are included in a machine-executable object
+ form of such source code, you may redistribute such machine-executable
+ object code without including the full text of the license.
+ .
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: Apache-2.0 OR BSD-2-Clause OR MIT
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+ .
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+ .
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: Apache-2.0 OR BSD-3-Clause
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+ .
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+ .
+ 3. Neither the name of the copyright holder nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+
+License: Apache-2.0 OR BSD-3-Clause OR MIT
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+ .
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+ .
+ 3. Neither the name of the copyright holder nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+ .
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: Apache-2.0 OR LGPL-2.1-or-later OR MIT
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ On Debian systems, the complete text of the GNU Lesser General Public
+ License, Version 2.1 can be found in "/usr/share/common-licenses/LGPL-2.1".
+ .
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: Apache-2.0 OR MIT
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: Apache-2.0 OR MIT OR Zlib
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ .
+ This software is provided 'as-is', without any express or implied
+ warranty. In no event will the authors be held liable for any damages
+ arising from the use of this software.
+ .
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it
+ freely, subject to the following restrictions:
+ .
+ 1. The origin of this software must not be misrepresented; you must not
+    claim that you wrote the original software. If you use this software
+    in a product, an acknowledgment in the product documentation would be
+    appreciated but is not required.
+ 2. Altered source versions must be plainly marked as such, and must not be
+    misrepresented as being the original software.
+ 3. This notice may not be removed or altered from any source distribution.
+
+License: Apache-2.0-with-LLVM-exception
+ On Debian systems, the complete text of the Apache-2.0
+ license can be found in "/usr/share/common-licenses/Apache-2.0".
+ .
+ --- LLVM Exception ---
+ .
+ As an exception, if, as a result of your compiling your source code,
+ portions of this Software are included in a machine-executable object
+ form of such source code, you may redistribute such machine-executable
+ object code without including the full text of the license.
+
+License: BSD-2-Clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+ .
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
 
 License: BSD-3-Clause
  Redistribution and use in source and binary forms, with or without
@@ -41,3 +1102,91 @@ License: BSD-3-Clause
  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
+
+License: LGPL-2.1-or-later
+ On Debian systems, the complete text of the GNU Lesser General Public
+ License, Version 2.1 can be found in "/usr/share/common-licenses/LGPL-2.1".
+
+License: MIT
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: MIT OR Unlicense
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ .
+ This is free and unencumbered software released into the public domain.
+ .
+ Anyone is free to copy, modify, publish, use, compile, sell, or
+ distribute this software, either in source code form or as a compiled
+ binary, for any purpose, commercial or non-commercial, and by any means.
+ .
+ For more information, please refer to <https://unlicense.org/>.
+
+License: MPL-2.0
+ On Debian systems, the complete text of the Mozilla Public License,
+ Version 2.0 can be found in "/usr/share/common-licenses/MPL-2.0".
+
+License: Unicode-3.0
+ UNICODE LICENSE V3
+ .
+ Distributed under the Terms of Use in
+ https://www.unicode.org/copyright.html.
+
+License: Unlicense
+ This is free and unencumbered software released into the public domain.
+ .
+ Anyone is free to copy, modify, publish, use, compile, sell, or
+ distribute this software, either in source code form or as a compiled
+ binary, for any purpose, commercial or non-commercial, and by any means.
+ .
+ For more information, please refer to <https://unlicense.org/>.
+
+License: Zlib
+ This software is provided 'as-is', without any express or implied
+ warranty. In no event will the authors be held liable for any damages
+ arising from the use of this software.
+ .
+ Permission is granted to anyone to use this software for any purpose,
+ including commercial applications, and to alter it and redistribute it
+ freely, subject to the following restrictions:
+ .
+ 1. The origin of this software must not be misrepresented; you must not
+    claim that you wrote the original software. If you use this software
+    in a product, an acknowledgment in the product documentation would be
+    appreciated but is not required.
+ 2. Altered source versions must be plainly marked as such, and must not be
+    misrepresented as being the original software.
+ 3. This notice may not be removed or altered from any source distribution.
