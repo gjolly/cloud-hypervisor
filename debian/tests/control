@@ -1,4 +1,4 @@
 Tests: boot-kernel
 Depends: @
-Restrictions: allow-stderr, needs-root
+Restrictions: allow-stderr, needs-root, isolation-machine
 Architecture: amd64 arm64

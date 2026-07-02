@@ -1,4 +1,4 @@
-cloud-hypervisor (52.0-0ubuntu1~ppa12) stonking; urgency=medium
+cloud-hypervisor (52.0-0ubuntu1~ppa13) stonking; urgency=medium
 
   * Initial release. (LP: #2158959)
   * New upstream release v52.0.
