@@ -1,7 +1,12 @@
-cloud-hypervisor (52.0-0ubuntu1~ppa10) stonking; urgency=medium
+cloud-hypervisor (52.0-0ubuntu1~ppa12) stonking; urgency=medium
 
+  * Initial release. (LP: #2158959)
   * New upstream release v52.0.
-  * Rewrite debian packaging for Ubuntu archive inclusion.
-  * Use vendored Rust dependencies tarball.
+  * Vendor all Rust dependencies in a separate orig tarball.
+  * Build for amd64, arm64, and riscv64.
+  * d/p/0001-arch-vmm-fix-riscv64-build-gaps.patch: cherry-pick upstream
+    commit 1e18716fbdc0 to fix riscv64 build.
+  * d/p/0002-vmm-allow-riscv64-path-syscalls-in-seccomp-filters.patch:
+    cherry-pick upstream commit 7d1321515cac to fix riscv64 seccomp filters.
 
  -- Gauthier Jolly <gauthier.jolly@canonical.com>  Wed, 01 Jul 2026 11:00:17 +0200
