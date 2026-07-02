@@ -538,13 +538,21 @@ def main():
         )
         groups[key].append(crate["dir_name"])
 
-    # Collect all unique license expressions we need to document.
-    # Include the static header licenses so they are not duplicated.
-    all_licenses = {"Apache-2.0", "Apache-2.0 OR BSD-3-Clause", "BSD-3-Clause"}
+    # Collect the individual license identifiers that need standalone
+    # License: paragraphs.  DEP-5 compound expressions like
+    # "Apache-2.0 OR MIT" in a Files: paragraph reference the individual
+    # License: paragraphs, so we only need one paragraph per unique
+    # atomic identifier (e.g. "Apache-2.0", "MIT"), not one per compound
+    # expression.  Emitting paragraphs for compound expressions triggers
+    # lintian's unused-license-paragraph-in-dep5-copyright.
+    all_licenses = set()
+    # Seed from the static header.
+    for expr in ("Apache-2.0 OR BSD-3-Clause", "Apache-2.0"):
+        for token in re.split(r"\s+(?:OR|AND)\s+", expr):
+            token = token.strip("() ")
+            if token:
+                all_licenses.add(token)
     for (license_expr, _), _ in groups.items():
-        all_licenses.add(license_expr)
-        # DEP-5 / lintian requires standalone License: paragraphs for each
-        # individual component of a compound (OR/AND) expression.
         for token in re.split(r"\s+(?:OR|AND)\s+", license_expr):
             token = token.strip("() ")
             if token:

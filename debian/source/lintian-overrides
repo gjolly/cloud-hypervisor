@@ -1,0 +1,13 @@
+# Vendored ELF test fixtures from the linux-loader crate.  These are
+# small binaries built from upstream test sources and used only for
+# unit tests.  They are not missing source.
+source-is-missing [vendor/linux-loader/*]
+
+# Vendored test binaries from the linux-loader crate (ELF and PE
+# fixtures used by upstream unit tests).
+source-contains-prebuilt-windows-binary [vendor/linux-loader/*]
+
+# Windows import libraries (.a) from the winapi-*-pc-windows-gnu crates.
+# Lintian's ar(1) cannot parse the PE/COFF archive format; these files
+# are never used on Linux.
+unpack-message-for-orig * vendor/winapi-*
