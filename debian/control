@@ -1,7 +1,7 @@
 Source: cloud-hypervisor
 Section: admin
 Priority: optional
-Maintainer: Gauthier Jolly <gauthier.jolly@canonical.com>
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Homepage: https://www.cloudhypervisor.org/
 Standards-Version: 4.7.2
 Build-Depends:
