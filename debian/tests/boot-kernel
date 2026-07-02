@@ -39,9 +39,9 @@ echo "Booting $KERNEL under cloud-hypervisor (arch=$ARCH, console=$CONSOLE_DEV).
 # Exit code 124 = timeout fired (expected on aarch64 panics)
 # Other         = real failure
 rc=0
-timeout 60 cloud-hypervisor \
+timeout 15 cloud-hypervisor \
     --kernel "$KERNEL" \
-    --cmdline "console=$CONSOLE_DEV panic=-1" \
+    --cmdline "console=$CONSOLE_DEV panic=0" \
     --serial "file=$SERIAL_LOG" \
     --console off \
     --memory size=256M \
