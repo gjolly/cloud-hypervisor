@@ -54,7 +54,14 @@ VENDOR_TARBALL = ../$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig-vendor.tar.xz
 
 vendor-tarball:
 	rm -rf vendor
-	cargo vendor
+	cargo vendor-filterer \
+		--platform=x86_64-unknown-linux-gnu \
+		--platform=x86_64-unknown-linux-musl \
+		--platform=aarch64-unknown-linux-gnu \
+		--platform=aarch64-unknown-linux-musl \
+		--platform=riscv64gc-unknown-linux-gnu \
+		--exclude-crate-path='*#tests' \
+		--exclude-crate-path='linux-loader#src/loader/**/*.bin'
 	tar cJf $(VENDOR_TARBALL) vendor/
 	rm -rf vendor
 	@echo "Created $(VENDOR_TARBALL)"
