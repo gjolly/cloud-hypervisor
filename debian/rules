@@ -9,7 +9,7 @@ export OPENSSL_NO_VENDOR = 1
 include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
 
-CARGO_FEATURES := --no-default-features --features kvm
+CARGO_FEATURES := --no-default-features --features kvm,io_uring,tdx,fw_cfg
 
 %:
 	dh $@
