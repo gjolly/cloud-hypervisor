@@ -723,6 +723,8 @@ pub fn load_igvm(
                     ParameterAreaState::Inserted => panic!("igvmfile is invalid, multiple insert"),
                 }
                 *area = ParameterAreaState::Inserted;
+                // The `_` arm is unreachable when only the KVM backend is built.
+                #[allow(unreachable_patterns)]
                 match hypervisor_type {
                     #[cfg(feature = "kvm")]
                     HypervisorType::Kvm => {
@@ -788,6 +790,7 @@ pub fn load_igvm(
 
         // KVM: preserve original IGVM ordering — the SNP launch digest is order-sensitive.
         // MSHV: sort by GPA to group pages by type for fewer hypercalls.
+        #[allow(unreachable_patterns)]
         match hypervisor_type {
             #[cfg(feature = "kvm")]
             HypervisorType::Kvm => {}
@@ -799,10 +802,13 @@ pub fn load_igvm(
             .fold(Vec::<Vec<GpaPages>>::new(), |mut acc, gpa| {
                 if let Some(last_vec) = acc.last_mut()
                     && last_vec[0].page_type == gpa.page_type
-                    && match hypervisor_type {
-                        #[cfg(feature = "kvm")]
-                        HypervisorType::Kvm => last_vec[0].page_size == gpa.page_size,
-                        _ => true,
+                    && {
+                        #[allow(unreachable_patterns)]
+                        match hypervisor_type {
+                            #[cfg(feature = "kvm")]
+                            HypervisorType::Kvm => last_vec[0].page_size == gpa.page_size,
+                            _ => true,
+                        }
                     }
                 {
                     last_vec.push(*gpa);
@@ -891,12 +897,17 @@ pub fn load_igvm(
             gpas.len()
         );
 
-        let id_block_enabled = if hypervisor_type == HypervisorType::Mshv {
+        #[cfg(feature = "mshv")]
+        let is_mshv = hypervisor_type == HypervisorType::Mshv;
+        #[cfg(not(feature = "mshv"))]
+        let is_mshv = false;
+
+        let id_block_enabled = if is_mshv {
             1
         } else {
             u8::from(loaded_info.has_snp_id_block)
         };
-        let auth_key_enabled = if hypervisor_type == HypervisorType::Mshv {
+        let auth_key_enabled = if is_mshv {
             0
         } else {
             loaded_info.snp_id_block.author_key_enabled
