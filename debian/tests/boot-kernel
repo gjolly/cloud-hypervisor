@@ -24,19 +24,15 @@ fi
 # Architecture-specific console device.
 ARCH="$(dpkg --print-architecture)"
 case "$ARCH" in
-    amd64)  CONSOLE_DEV=ttyS0 ;;
+    amd64|riscv64)  CONSOLE_DEV=ttyS0 ;;
     arm64)  CONSOLE_DEV=ttyAMA0 ;;
     *)      echo "SKIP: unsupported architecture $ARCH"; exit 77 ;;
 esac
 
 echo "Booting $KERNEL under cloud-hypervisor (arch=$ARCH, console=$CONSOLE_DEV)..."
 
-# Boot with a generous timeout.  The VM will:
-#   - x86_64: triple-fault on kernel panic -> CHV exits on its own
-#   - aarch64: may hang after panic -> timeout terminates it
-#
 # Exit code 0   = CHV exited normally (guest shutdown/triple-fault)
-# Exit code 124 = timeout fired (expected on aarch64 panics)
+# Exit code 124 = timeout fired
 # Other         = real failure
 rc=0
 timeout 15 cloud-hypervisor \
