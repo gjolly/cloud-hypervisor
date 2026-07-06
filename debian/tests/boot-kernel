@@ -6,27 +6,57 @@
 set -eu
 
 SERIAL_LOG="$(mktemp)"
-trap 'rm -f "$SERIAL_LOG"' EXIT
+CLEANUP_FILES="$SERIAL_LOG"
+cleanup() { rm -f $CLEANUP_FILES; }
+trap cleanup EXIT
 
 # Pick the running kernel so we don't need extra packages.
 KERNEL="/boot/vmlinuz-$(uname -r)"
 if [ ! -r "$KERNEL" ]; then
     echo "SKIP: kernel image $KERNEL not readable" >&2
-    exit 77  # autopkgtest SKIP code
+    exit 77
 fi
 
 # Verify /dev/kvm is usable.
+modprobe kvm || true
 if [ ! -w /dev/kvm ]; then
     echo "SKIP: /dev/kvm not writable" >&2
     exit 77
 fi
 
-# Architecture-specific console device.
+# Architecture-specific console device and kernel preparation.
 ARCH="$(dpkg --print-architecture)"
 case "$ARCH" in
-    amd64|riscv64)  CONSOLE_DEV=ttyS0 ;;
-    arm64)  CONSOLE_DEV=ttyAMA0 ;;
-    *)      echo "SKIP: unsupported architecture $ARCH"; exit 77 ;;
+    amd64)   CONSOLE_DEV=ttyS0 ;;
+    arm64)   CONSOLE_DEV=ttyAMA0 ;;
+    riscv64)
+        CONSOLE_DEV=ttyS0
+
+        # RISC-V KVM requires AIA (Advanced Interrupt Architecture)
+        # extensions.  Skip the test when the CPU does not advertise them.
+        ISA="$(grep -m1 -oP '^isa\s*:\s*\K.*' /proc/cpuinfo || true)"
+        if ! echo "$ISA" | grep -qi 'ssaia'; then
+            echo "SKIP: CPU does not advertise ssaia; KVM AIA unavailable"
+            exit 77
+        fi
+
+        # Ubuntu riscv64 kernels are zboot images (zstd-compressed
+        # inside a PE stub).  cloud-hypervisor's PE loader cannot
+        # handle them, so decompress to a plain Image first.
+        if file "$KERNEL" | grep -q 'zboot\|zstd compressed'; then
+            EXTRACT="/usr/src/linux-headers-$(uname -r)/scripts/extract-vmlinux"
+            if [ ! -x "$EXTRACT" ]; then
+                echo "FAIL: $EXTRACT not found; install linux-headers-$(uname -r)" >&2
+                exit 1
+            fi
+            DECOMPRESSED="$(mktemp)"
+            CLEANUP_FILES="$CLEANUP_FILES $DECOMPRESSED"
+            echo "Decompressing zboot kernel with extract-vmlinux..."
+            "$EXTRACT" "$KERNEL" > "$DECOMPRESSED"
+            KERNEL="$DECOMPRESSED"
+        fi
+        ;;
+    *)      echo "FAIL: unsupported architecture $ARCH"; exit 1 ;;
 esac
 
 echo "Booting $KERNEL under cloud-hypervisor (arch=$ARCH, console=$CONSOLE_DEV)..."
