@@ -12,5 +12,10 @@ cloud-hypervisor (52.0-0ubuntu1) stonking; urgency=medium
     cherry-pick upstream commits 085642dd423e and 649ca23345cc to clamp AIA
     interrupt sources to KVM device capacity, fixing EINVAL on riscv64
     platforms with smaller IMSIC capacity.
+  * d/p/0004-hypervisor-riscv64-drop-Irqchip-and-IrqRouting-cap-c.patch:
+    drop Cap::Irqchip and Cap::IrqRouting from riscv64 KVM capability
+    checks; these capabilities are not exposed by RISC-V KVM, which uses
+    AIA instead of the in-kernel irqchip, causing an unconditional panic
+    at VM creation.
 
  -- Gauthier Jolly <gauthier.jolly@canonical.com>  Wed, 01 Jul 2026 11:00:17 +0200
