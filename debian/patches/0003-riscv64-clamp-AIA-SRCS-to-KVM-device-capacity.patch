@@ -1,0 +1,138 @@
+Description: riscv64: clamp AIA SRCS to KVM device capacity
+ The number of wired interrupt sources (SRCS) must be less than the
+ KVM device's maximum interrupt identities (kvm_riscv_aia_max_ids).
+ Platforms with smaller IMSIC capacity reject values that exceed this
+ limit with EINVAL.
+ .
+ Query KVM_DEV_RISCV_AIA_CONFIG_IDS before setting SRCS and clamp the
+ requested value to the reported nr_ids (which equals max_ids - 1).
+ Record the NR_IDS value reported by KVM and expose it through the Vaia
+ trait so the FDT can advertise the correct riscv,num-ids value instead
+ of a hardcoded constant.
+Author: Meng Zhuo <mengzhuo@iscas.ac.cn>
+Origin: upstream, https://github.com/cloud-hypervisor/cloud-hypervisor/commit/085642dd423e80526e6d580f228198dae062c0ef
+Origin: upstream, https://github.com/cloud-hypervisor/cloud-hypervisor/commit/649ca23345cc5b56ec08abe635b43b1740617ad9
+Applied-Upstream: commit:085642dd423e80526e6d580f228198dae062c0ef
+Last-Update: 2026-07-06
+---
+--- a/hypervisor/src/kvm/riscv64/aia.rs
++++ b/hypervisor/src/kvm/riscv64/aia.rs
+@@ -5,7 +5,9 @@
+ use std::any::Any;
+ 
+ use kvm_ioctls::DeviceFd;
++use log::info;
+ use serde::{Deserialize, Serialize};
++use std::cmp;
+ 
+ use crate::Vm;
+ use crate::arch::riscv64::aia::{Error, Result, Vaia, VaiaConfig};
+@@ -24,6 +26,9 @@
+ 
+     /// Number of CPUs handled by the device
+     vcpu_count: u32,
++
++    /// Number of IMSIC interrupt identities configured by KVM
++    imsic_num_ids: u32,
+ }
+ 
+ #[derive(Clone, Default, Serialize, Deserialize)]
+@@ -39,7 +44,7 @@
+     fn init_device_attributes(&mut self, nr_irqs: u32) -> Result<()> {
+         // AIA part attributes
+         // Getting the working mode of RISC-V AIA, defaults to EMUL, passible
+-        // variants are EMUL, HW_ACCL, AUTO
++        // variants are EMUL, HW_ACCL and AUTO.
+         let mut aia_mode = kvm_bindings::KVM_DEV_RISCV_AIA_MODE_EMUL;
+         Self::get_device_attribute(
+             &self.device,
+@@ -49,18 +54,10 @@
+             0,
+         )?;
+ 
+-        // Report AIA MODE
+-
+-        // Setting up the number of wired interrupt sources
+-        Self::set_device_attribute(
+-            &self.device,
+-            kvm_bindings::KVM_DEV_RISCV_AIA_GRP_CONFIG,
+-            u64::from(kvm_bindings::KVM_DEV_RISCV_AIA_CONFIG_SRCS),
+-            &raw const nr_irqs as u64,
+-            0,
+-        )?;
+-
+-        // Getting the number of ids
++        // Query KVM's max interrupt IDs to determine the safe SRCS limit.
++        // Kernel requires: SRCS < kvm_riscv_aia_max_ids, where
++        //   kvm_riscv_aia_max_ids = nr_ids + 1
++        // so safe SRCS = nr_ids.
+         let mut aia_nr_ids: u32 = 0;
+         Self::get_device_attribute(
+             &self.device,
+@@ -69,8 +66,21 @@
+             &raw mut aia_nr_ids as u64,
+             0,
+         )?;
++        self.imsic_num_ids = aia_nr_ids;
+ 
+-        // Report NR_IDS
++        // Setting up the number of wired interrupt sources, clamped to KVM capacity
++        let safe_nr_irqs = cmp::min(nr_irqs, aia_nr_ids);
++        info!(
++            "Configuring AIA interrupt sources: {} (requested {}, max {})",
++            safe_nr_irqs, nr_irqs, aia_nr_ids
++        );
++        Self::set_device_attribute(
++            &self.device,
++            kvm_bindings::KVM_DEV_RISCV_AIA_GRP_CONFIG,
++            u64::from(kvm_bindings::KVM_DEV_RISCV_AIA_CONFIG_SRCS),
++            &raw const safe_nr_irqs as u64,
++            0,
++        )?;
+ 
+         // Setting up hart_bits
+         let max_hart_index = self.vcpu_count as u64 - 1;
+@@ -191,6 +201,7 @@
+             vcpu_count: config.vcpu_count,
+             aplic_addr: config.aplic_addr,
+             imsic_addr: config.imsic_addr,
++            imsic_num_ids: 0,
+         };
+ 
+         aia_device.init_device_attributes(config.nr_irqs)?;
+@@ -226,6 +237,10 @@
+         ]
+     }
+ 
++    fn imsic_num_ids(&self) -> u32 {
++        self.imsic_num_ids
++    }
++
+     fn vcpu_count(&self) -> u32 {
+         self.vcpu_count
+     }
+--- a/hypervisor/src/arch/riscv64/aia.rs
++++ b/hypervisor/src/arch/riscv64/aia.rs
+@@ -46,6 +46,9 @@
+     /// Returns an array with IMSIC device properties
+     fn imsic_properties(&self) -> [u32; 4];
+ 
++    /// Returns the number of IMSIC interrupt identities exposed to the guest
++    fn imsic_num_ids(&self) -> u32;
++
+     /// Returns the number of vCPUs this AIA handles
+     fn vcpu_count(&self) -> u32;
+ 
+--- a/arch/src/riscv64/fdt.rs
++++ b/arch/src/riscv64/fdt.rs
+@@ -231,8 +231,8 @@
+         fdt.property_u32("#interrupt-cells", 0u32)?;
+         fdt.property_null("interrupt-controller")?;
+         fdt.property_null("msi-controller")?;
+-        // TODO complete num-ids
+-        fdt.property_u32("riscv,num-ids", 2047u32)?;
++        let imsic_num_ids = aia_device.lock().unwrap().imsic_num_ids();
++        fdt.property_u32("riscv,num-ids", imsic_num_ids)?;
+         fdt.property_u32("phandle", AIA_IMSIC_PHANDLE)?;
+ 
+         let mut irq_cells = Vec::new();
