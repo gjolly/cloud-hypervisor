@@ -290,6 +290,10 @@ pub enum ValidationError {
     #[cfg(feature = "tdx")]
     #[error("No TDX firmware specified")]
     TdxFirmwareMissing,
+    /// TDX and SEV-SNP cannot be enabled on the same VM
+    #[cfg(all(feature = "tdx", feature = "sev_snp"))]
+    #[error("TDX and SEV-SNP are mutually exclusive platform features")]
+    TdxAndSevSnpExclusive,
     /// Insufficient vCPUs for queues
     #[error("Queue count ({0}) must not exceed boot vCPUs ({1})")]
     TooManyQueues(usize /* queues */, usize /* vCPUs */),
@@ -3081,6 +3085,15 @@ impl VmConfig {
             }
             if tdx_enabled && (self.cpus.max_vcpus != self.cpus.boot_vcpus) {
                 return Err(ValidationError::TdxNoCpuHotplug);
+            }
+        }
+
+        #[cfg(all(feature = "tdx", feature = "sev_snp"))]
+        {
+            let tdx_enabled = self.platform.as_ref().is_some_and(|p| p.tdx);
+            let sev_snp_enabled = self.platform.as_ref().is_some_and(|p| p.sev_snp);
+            if tdx_enabled && sev_snp_enabled {
+                return Err(ValidationError::TdxAndSevSnpExclusive);
             }
         }
 
