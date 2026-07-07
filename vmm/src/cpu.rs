@@ -546,6 +546,7 @@ impl Vcpu {
         #[cfg(target_arch = "x86_64")] topology: (u16, u16, u16, u16),
         #[cfg(target_arch = "x86_64")] nested: bool,
         #[cfg(feature = "igvm")] igvm_enabled: bool,
+        #[cfg(feature = "tdx")] tdx_enabled: bool,
     ) -> Result<()> {
         #[cfg(target_arch = "aarch64")]
         {
@@ -582,6 +583,8 @@ impl Vcpu {
                 topology,
                 nested,
                 setup_registers,
+                #[cfg(feature = "tdx")]
+                tdx_enabled,
             )
             .map_err(Error::VcpuConfiguration)?;
         }
@@ -1082,6 +1085,8 @@ impl CpuManager {
             self.config.nested,
             #[cfg(feature = "igvm")]
             self.igvm_enabled,
+            #[cfg(feature = "tdx")]
+            !self.dynamic,
         )?;
 
         #[cfg(target_arch = "aarch64")]

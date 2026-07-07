@@ -973,6 +973,7 @@ pub fn configure_vcpu(
     topology: (u16, u16, u16, u16),
     nested: bool,
     setup_registers: bool,
+    #[cfg(feature = "tdx")] tdx: bool,
 ) -> super::Result<()> {
     let x2apic_id = get_x2apic_id(id, Some(topology));
 
@@ -1040,6 +1041,15 @@ pub fn configure_vcpu(
 
     if kvm_hyperv {
         vcpu.enable_hyperv_synic().unwrap();
+    }
+
+    // Under TDX the guest's MSR, register, and LAPIC state is protected
+    // by the TDX module and cannot be accessed via KVM ioctls.  Skip all
+    // direct vCPU state setup; the TDX module initialises these during
+    // TDH.VP.INIT.
+    #[cfg(feature = "tdx")]
+    if tdx {
+        return Ok(());
     }
 
     regs::setup_msrs(vcpu).map_err(Error::MsrsConfiguration)?;
