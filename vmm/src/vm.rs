@@ -2695,15 +2695,13 @@ impl Vm {
 
         for section in sections {
             let size = section.size.try_into().unwrap();
+            let host_addr =
+                virtio_devices::get_host_address_range(&*mem, GuestAddress(section.address), size)
+                    .unwrap();
             // SAFETY: get_host_address_range does proper bounds checking
             unsafe {
                 self.cpu_manager.lock().unwrap().tdx_init_memory_region(
-                    virtio_devices::get_host_address_range(
-                        &*mem,
-                        GuestAddress(section.address),
-                        size,
-                    )
-                    .unwrap(),
+                    host_addr,
                     section.address,
                     size,
                     /* TDVF_SECTION_ATTRIBUTES_EXTENDMR */

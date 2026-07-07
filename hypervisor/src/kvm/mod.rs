@@ -16,7 +16,7 @@ use std::collections::HashMap;
 use std::mem::offset_of;
 #[cfg(feature = "sev_snp")]
 use std::num;
-#[cfg(feature = "sev_snp")]
+#[cfg(any(feature = "sev_snp", feature = "tdx"))]
 use std::os::fd::FromRawFd;
 use std::os::fd::OwnedFd;
 #[cfg(feature = "tdx")]
@@ -46,7 +46,7 @@ use anyhow::anyhow;
 #[cfg(feature = "sev_snp")]
 use igvm::snp_defs::{SevSelector, SevVmsa};
 use kvm_bindings::fam_wrappers::KvmIrqRouting;
-#[cfg(feature = "sev_snp")]
+#[cfg(any(feature = "sev_snp", feature = "tdx"))]
 use kvm_bindings::kvm_create_guest_memfd;
 use kvm_ioctls::{NoDatamatch, VcpuFd, VmFd};
 #[cfg(feature = "sev_snp")]
@@ -216,10 +216,10 @@ ioctl_iow_nr!(
 
 #[cfg(feature = "sev_snp")]
 use igvm_defs::PAGE_SIZE_4K;
+#[cfg(any(feature = "sev_snp", feature = "tdx"))]
+use kvm_bindings::{KVM_MEMORY_ATTRIBUTE_PRIVATE, kvm_memory_attributes};
 #[cfg(feature = "sev_snp")]
-use kvm_bindings::{
-    KVM_MEMORY_ATTRIBUTE_PRIVATE, KVM_X86_SNP_VM, kvm_memory_attributes, kvm_segment as Segment,
-};
+use kvm_bindings::{KVM_X86_SNP_VM, kvm_segment as Segment};
 use vm_memory::GuestAddress;
 #[cfg(feature = "sev_snp")]
 use x86_64::sev;
@@ -616,12 +616,10 @@ struct KvmDirtyLogSlot {
     guest_memfd: u32,
 }
 
+#[expect(dead_code)]
 struct KvmMemorySlot {
-    #[cfg_attr(not(feature = "sev_snp"), expect(dead_code))]
     guest_memfd: OwnedFd,
-    #[cfg_attr(not(feature = "sev_snp"), expect(dead_code))]
     guest_phys_addr: u64,
-    #[cfg_attr(not(feature = "sev_snp"), expect(dead_code))]
     memory_size: u64,
 }
 
@@ -1107,7 +1105,7 @@ impl vm::Vm for KvmVm {
 
         // Create a per-region guest_memfd when supported.
         // Each region gets its own fd sized exactly to memory_size
-        #[cfg(feature = "sev_snp")]
+        #[cfg(any(feature = "sev_snp", feature = "tdx"))]
         let guest_memfd = if let Some(slots) = &self.memory_slots {
             // SAFETY: Safe because guest regions are guaranteed not to overlap.
             let fd = unsafe {
@@ -1133,7 +1131,7 @@ impl vm::Vm for KvmVm {
         } else {
             0
         };
-        #[cfg(not(feature = "sev_snp"))]
+        #[cfg(not(any(feature = "sev_snp", feature = "tdx")))]
         let guest_memfd = 0;
 
         let mut region = kvm_userspace_memory_region2 {
@@ -1180,7 +1178,11 @@ impl vm::Vm for KvmVm {
                 .map_err(|e| vm::HypervisorVmError::CreateUserMemory(e.into()))?;
         }
 
-        #[cfg(feature = "sev_snp")]
+        // Confidential guests (SEV-SNP, TDX) start with all guest memory
+        // private. KVM_TDX_INIT_MEM_REGION requires the target GPA range to
+        // have KVM_MEMORY_ATTRIBUTE_PRIVATE, otherwise kvm_gmem_populate()
+        // fails with EINVAL.
+        #[cfg(any(feature = "sev_snp", feature = "tdx"))]
         if self.memory_slots.is_some() {
             self.fd
                 .set_memory_attributes(kvm_memory_attributes {
@@ -1931,6 +1933,11 @@ impl hypervisor::Hypervisor for KvmHypervisor {
             let mut memory_slots = None;
             #[cfg(feature = "sev_snp")]
             if _config.sev_snp_enabled && fd.check_extension(Cap::GuestMemfd) {
+                memory_slots = Some(Arc::new(RwLock::new(HashMap::new())));
+            }
+            #[cfg(feature = "tdx")]
+            if _config.tdx_enabled && memory_slots.is_none() && fd.check_extension(Cap::GuestMemfd)
+            {
                 memory_slots = Some(Arc::new(RwLock::new(HashMap::new())));
             }
 
