@@ -2658,10 +2658,18 @@ impl Vm {
             .unwrap()
             .end_of_device_area()
             .raw_value();
+        // TDVF converts every MMIO resource advertised in the HOB to shared
+        // memory, one MapGPA TDVMCALL per 2 MiB. The device area spans the
+        // guest PA space (tens of TiB), which would take tens of millions of
+        // hypercalls and many minutes of boot time. Only advertise the front
+        // of the area, which is where the firmware allocates BARs; the guest
+        // OS discovers the PCI apertures from ACPI and converts the MMIO
+        // ranges it actually maps on demand.
+        const TDX_HOB_MMIO64_MAX_SIZE: u64 = 64 << 30;
         hob.add_mmio_resource(
             &mem,
             start_of_device_area,
-            end_of_device_area - start_of_device_area,
+            (end_of_device_area - start_of_device_area).min(TDX_HOB_MMIO64_MAX_SIZE),
         )
         .map_err(Error::PopulateHob)?;
 
