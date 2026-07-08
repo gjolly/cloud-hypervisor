@@ -198,6 +198,10 @@ pub enum Error {
     #[error("Error initializing TDX")]
     InitializeTdx(#[source] hypervisor::HypervisorCpuError),
 
+    #[cfg(feature = "tdx")]
+    #[error("Error initializing TDX memory region")]
+    InitializeTdxMemoryRegion(#[source] hypervisor::HypervisorCpuError),
+
     #[cfg(target_arch = "aarch64")]
     #[error("Error initializing PMU")]
     InitPmu(#[source] hypervisor::HypervisorCpuError),
@@ -1686,6 +1690,35 @@ impl CpuManager {
                 .map_err(Error::InitializeTdx)?;
         }
         Ok(())
+    }
+
+    /// Initialize a TDX memory region via the first vCPU fd.
+    ///
+    /// The mainline kernel requires `KVM_TDX_INIT_MEM_REGION` to be issued
+    /// on a vCPU fd, so we route it through the first vCPU.
+    ///
+    /// # Safety
+    ///
+    /// `host_address` must be valid for `size` bytes.
+    #[cfg(feature = "tdx")]
+    pub unsafe fn tdx_init_memory_region(
+        &self,
+        host_address: *mut u8,
+        guest_address: u64,
+        size: usize,
+        measure: bool,
+    ) -> Result<()> {
+        let first_vcpu = self.vcpus.first().expect("no vCPUs created");
+        // SAFETY: caller guarantees host_address is valid for size bytes.
+        unsafe {
+            first_vcpu.lock().unwrap().vcpu.tdx_init_memory_region(
+                host_address,
+                guest_address,
+                size,
+                measure,
+            )
+        }
+        .map_err(Error::InitializeTdxMemoryRegion)
     }
 
     pub fn boot_vcpus(&self) -> u32 {
