@@ -395,6 +395,28 @@ pub enum Error {
     #[cfg(feature = "fw_cfg")]
     #[error("Error using fw_cfg while disabled")]
     FwCfgDisabled,
+
+    #[error(
+        "The hypervisor is missing a required extension (is the requested platform, e.g. TDX/SEV-SNP, supported and enabled on this host?)"
+    )]
+    CheckRequiredExtensions(#[source] hypervisor::HypervisorError),
+
+    #[error(
+        "Failed to create the hypervisor VM (is the requested platform, e.g. TDX/SEV-SNP, supported and enabled on this host?)"
+    )]
+    VmCreate(#[source] hypervisor::HypervisorError),
+
+    #[cfg(target_arch = "x86_64")]
+    #[error("Failed to set the identity map address")]
+    SetIdentityMapAddress(#[source] hypervisor::HypervisorVmError),
+
+    #[cfg(target_arch = "x86_64")]
+    #[error("Failed to set the TSS address")]
+    SetTssAddress(#[source] hypervisor::HypervisorVmError),
+
+    #[cfg(target_arch = "x86_64")]
+    #[error("Failed to enable split IRQ chip")]
+    EnableSplitIrq(#[source] hypervisor::HypervisorVmError),
 }
 pub type Result<T> = result::Result<T, Error>;
 
@@ -1460,16 +1482,19 @@ impl Vm {
         hypervisor: &dyn hypervisor::Hypervisor,
         config: HypervisorVmConfig,
     ) -> Result<Arc<dyn hypervisor::Vm>> {
-        hypervisor.check_required_extensions().unwrap();
+        hypervisor
+            .check_required_extensions()
+            .map_err(Error::CheckRequiredExtensions)?;
 
-        let vm = hypervisor.create_vm(config).unwrap();
+        let vm = hypervisor.create_vm(config).map_err(Error::VmCreate)?;
 
         #[cfg(target_arch = "x86_64")]
         {
             vm.set_identity_map_address(KVM_IDENTITY_MAP_START.0)
-                .unwrap();
-            vm.set_tss_address(KVM_TSS_START.0 as usize).unwrap();
-            vm.enable_split_irq().unwrap();
+                .map_err(Error::SetIdentityMapAddress)?;
+            vm.set_tss_address(KVM_TSS_START.0 as usize)
+                .map_err(Error::SetTssAddress)?;
+            vm.enable_split_irq().map_err(Error::EnableSplitIrq)?;
         }
 
         Ok(vm)
