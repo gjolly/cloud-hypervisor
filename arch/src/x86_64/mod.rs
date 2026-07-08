@@ -898,6 +898,57 @@ fn required_common_cpuid_updates(
     cpuid
 }
 
+/// Clamp a physical-address-width value to a TDX-supported guest physical
+/// address width (GPAW). The TDX module only supports a GPAW of 48 (4-level
+/// EPT) or 52 (5-level EPT); any host value below 52 is mapped down to 48.
+#[cfg(feature = "tdx")]
+pub fn tdx_gpaw_from_phys_bits(phys_bits: u32) -> u32 {
+    if phys_bits >= 52 { 52 } else { 48 }
+}
+
+/// Adjust a guest CPUID array so it is consistent with the TDX module's
+/// capabilities, in place.
+///
+/// Two adjustments are made:
+///
+/// * Leaf `0xd` (extended state enumeration) is masked against
+///   `supported_xfam`. Index 0 carries the XCR0-managed features (EAX/EDX),
+///   index 1 the XSS-managed features (ECX/EDX). The `xcr0_mask` selects the
+///   XCR0 bits; the remaining bits belong to XSS. Masking here keeps the
+///   guest-visible XSAVE feature set in sync with the `xfam` value that is
+///   passed to `KVM_TDX_INIT_VM`.
+///
+/// * Leaf `0x8000_0008` EAX has the guest physical address width forced to a
+///   TDX-supported GPAW (see [`tdx_gpaw_from_phys_bits`]). The guest encodes
+///   shared GPAs by setting bit `(GPAW - 1)`, and KVM validates TDVMCALL GPAs
+///   (e.g. MapGPA) against CPUID `0x8000_0008` EAX[7:0]; a smaller value there
+///   makes the guest's shared<->private conversion requests fail with
+///   `TDVMCALL_STATUS_INVALID_OPERAND`. Bits [23:16] are also used by
+///   `KVM_TDX_INIT_VM` to select the GPAW, so keep both in sync.
+#[cfg(feature = "tdx")]
+fn apply_tdx_cpuid_configuration(cpuid: &mut [CpuIdEntry], supported_xfam: u64) {
+    for entry in cpuid.iter_mut().filter(|entry| entry.function == 0xd) {
+        let xcr0_mask: u64 = 0x82ff;
+        let xss_mask: u64 = !xcr0_mask;
+        if entry.index == 0 {
+            // Leaf 0xd index 0: XCR0 supported bits
+            entry.eax &= (supported_xfam & xcr0_mask) as u32;
+            entry.edx &= ((supported_xfam & xcr0_mask) >> 32) as u32;
+        } else if entry.index == 1 {
+            // Leaf 0xd index 1: XSS supported bits
+            entry.ecx &= (supported_xfam & xss_mask) as u32;
+            entry.edx &= ((supported_xfam & xss_mask) >> 32) as u32;
+        }
+    }
+
+    for entry in cpuid.iter_mut().filter(|e| e.function == 0x8000_0008) {
+        let gpaw = tdx_gpaw_from_phys_bits(entry.eax & 0xff);
+        entry.eax = (entry.eax & 0xff00_ff00) | gpaw | (gpaw << 16);
+    }
+}
+
+/// Query the TDX capabilities for `vm` and adjust `cpuid` to be consistent
+/// with them (leaf `0xd` XFAM masking and leaf `0x8000_0008` GPAW fixup).
 #[cfg(feature = "tdx")]
 pub fn common_cpuid_tdx_configuration(
     cpuid: &mut [CpuIdEntry],
@@ -906,19 +957,7 @@ pub fn common_cpuid_tdx_configuration(
     let caps = vm.tdx_capabilities().map_err(Error::TdxCapabilities)?;
     info!("TDX capabilities {caps:#?}");
 
-    for entry in cpuid.iter_mut().filter(|entry| entry.function == 0xd) {
-        let xcr0_mask: u64 = 0x82ff;
-        let xss_mask: u64 = !xcr0_mask;
-        if entry.index == 0 {
-            // Leaf 0xd index 0: XCR0 supported bits
-            entry.eax &= (caps.supported_xfam & xcr0_mask) as u32;
-            entry.edx &= ((caps.supported_xfam & xcr0_mask) >> 32) as u32;
-        } else if entry.index == 1 {
-            // Leaf 0xd index 1: XSS supported bits
-            entry.ecx &= (caps.supported_xfam & xss_mask) as u32;
-            entry.edx &= ((caps.supported_xfam & xss_mask) >> 32) as u32;
-        }
-    }
+    apply_tdx_cpuid_configuration(cpuid, caps.supported_xfam);
 
     Ok(())
 }
@@ -1767,5 +1806,103 @@ mod unit_tests {
         assert_eq!(x2apic_id, 257);
 
         assert_eq!(255, get_max_x2apic_id((1, 256, 1, 1)));
+    }
+
+    #[cfg(feature = "tdx")]
+    #[test]
+    fn test_tdx_gpaw_from_phys_bits() {
+        // Anything below 52 is clamped down to the 4-level EPT width.
+        assert_eq!(tdx_gpaw_from_phys_bits(0), 48);
+        assert_eq!(tdx_gpaw_from_phys_bits(39), 48);
+        assert_eq!(tdx_gpaw_from_phys_bits(48), 48);
+        assert_eq!(tdx_gpaw_from_phys_bits(51), 48);
+        // Exactly 52 (or above) maps to the 5-level EPT width.
+        assert_eq!(tdx_gpaw_from_phys_bits(52), 52);
+        assert_eq!(tdx_gpaw_from_phys_bits(64), 52);
+    }
+
+    #[cfg(feature = "tdx")]
+    #[test]
+    fn test_apply_tdx_cpuid_configuration_gpaw() {
+        // Host advertises 46 physical bits; TDX must force GPAW to 48 in
+        // both EAX[7:0] and EAX[23:16] while preserving the other bits.
+        let mut cpuid = vec![CpuIdEntry {
+            function: 0x8000_0008,
+            index: 0,
+            eax: 0x0000_3028, // phys_bits=0x28 (40), linear=0x30, upper bits 0
+            ..Default::default()
+        }];
+        apply_tdx_cpuid_configuration(&mut cpuid, 0);
+        // EAX[7:0] = 48 (0x30), EAX[23:16] = 48 (0x30), EAX[15:8] preserved.
+        assert_eq!(cpuid[0].eax, 0x0030_3030);
+
+        // Host advertises 52 physical bits; GPAW stays at 52.
+        let mut cpuid = vec![CpuIdEntry {
+            function: 0x8000_0008,
+            index: 0,
+            eax: 0x0000_0034, // phys_bits=0x34 (52)
+            ..Default::default()
+        }];
+        apply_tdx_cpuid_configuration(&mut cpuid, 0);
+        assert_eq!(cpuid[0].eax, 0x0034_0034);
+    }
+
+    #[cfg(feature = "tdx")]
+    #[test]
+    fn test_apply_tdx_cpuid_configuration_xfam_mask() {
+        // supported_xfam with a mix of XCR0 (low, within 0x82ff) and XSS
+        // (outside 0x82ff) bits, plus a high (>32) bit to exercise EDX.
+        // Bit 0 (x87) and bit 1 (SSE) are XCR0; bit 8 (PT) is XSS.
+        let supported_xfam: u64 = 0x0000_0001_0000_0103;
+        let xcr0_mask: u64 = 0x82ff;
+
+        let mut cpuid = vec![
+            // Leaf 0xd index 0: guest advertises everything; masked to XCR0 bits.
+            CpuIdEntry {
+                function: 0xd,
+                index: 0,
+                eax: 0xffff_ffff,
+                edx: 0xffff_ffff,
+                ..Default::default()
+            },
+            // Leaf 0xd index 1: guest advertises everything; masked to XSS bits.
+            CpuIdEntry {
+                function: 0xd,
+                index: 1,
+                ecx: 0xffff_ffff,
+                edx: 0xffff_ffff,
+                ..Default::default()
+            },
+        ];
+
+        apply_tdx_cpuid_configuration(&mut cpuid, supported_xfam);
+
+        // Index 0 keeps only the XCR0 portion of supported_xfam.
+        assert_eq!(cpuid[0].eax, (supported_xfam & xcr0_mask) as u32);
+        assert_eq!(cpuid[0].edx, ((supported_xfam & xcr0_mask) >> 32) as u32);
+        // Index 1 keeps only the XSS portion (complement of xcr0_mask).
+        assert_eq!(cpuid[1].ecx, (supported_xfam & !xcr0_mask) as u32);
+        assert_eq!(cpuid[1].edx, ((supported_xfam & !xcr0_mask) >> 32) as u32);
+    }
+
+    #[cfg(feature = "tdx")]
+    #[test]
+    fn test_apply_tdx_cpuid_configuration_leaves_others_untouched() {
+        // Unrelated leaves must be left exactly as-is.
+        let mut cpuid = vec![CpuIdEntry {
+            function: 0x1,
+            index: 0,
+            eax: 0xdead_beef,
+            ebx: 0x1234_5678,
+            ecx: 0x9abc_def0,
+            edx: 0x0f0f_0f0f,
+            ..Default::default()
+        }];
+        let original = cpuid.clone();
+        apply_tdx_cpuid_configuration(&mut cpuid, 0xffff_ffff_ffff_ffff);
+        assert_eq!(cpuid[0].eax, original[0].eax);
+        assert_eq!(cpuid[0].ebx, original[0].ebx);
+        assert_eq!(cpuid[0].ecx, original[0].ecx);
+        assert_eq!(cpuid[0].edx, original[0].edx);
     }
 }
