@@ -122,6 +122,8 @@ pub use riscv64::{
 #[cfg(target_arch = "x86_64")]
 pub mod x86_64;
 
+#[cfg(all(target_arch = "x86_64", feature = "tdx"))]
+pub use x86_64::common_cpuid_tdx_configuration;
 #[cfg(target_arch = "x86_64")]
 pub use x86_64::{
     _NSIG, CpuidConfig, CpuidFeatureEntry, EntryPoint, arch_memory_regions, configure_system,

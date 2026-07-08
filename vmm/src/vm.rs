@@ -791,6 +791,8 @@ impl Vm {
             .is_some();
 
         let cpus_config = config.lock().unwrap().cpus.clone();
+        #[cfg(feature = "tdx")]
+        let vm_ref = vm.clone();
         let cpu_manager = cpu::CpuManager::new(
             &cpus_config,
             vm,
@@ -817,6 +819,8 @@ impl Vm {
             .unwrap()
             .populate_cpuid(
                 hypervisor.as_ref(),
+                #[cfg(feature = "tdx")]
+                vm_ref.as_ref(),
                 #[cfg(feature = "tdx")]
                 tdx_enabled,
             )

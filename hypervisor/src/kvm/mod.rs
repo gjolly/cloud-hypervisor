@@ -49,6 +49,8 @@ use kvm_bindings::kvm_create_guest_memfd;
 use kvm_ioctls::{NoDatamatch, VcpuFd, VmFd};
 #[cfg(feature = "sev_snp")]
 use log::debug;
+#[cfg(feature = "tdx")]
+use log::info;
 #[cfg(target_arch = "x86_64")]
 use log::warn;
 use vmm_sys_util::errno;
@@ -306,31 +308,18 @@ pub enum TdxExitStatus {
 }
 
 #[cfg(feature = "tdx")]
-const TDX_MAX_NR_CPUID_CONFIGS: usize = 6;
+const TDX_INITIAL_NR_CPUID_CONFIGS: u32 = 6;
 
+/// Result of `KVM_TDX_CAPABILITIES`, matching the mainline kernel's
+/// `struct kvm_tdx_capabilities`.  The variable-length CPUID array is
+/// stored separately because the kernel struct uses a flexible array
+/// member (`struct kvm_cpuid2` with a trailing `kvm_cpuid_entry2[]`).
 #[cfg(feature = "tdx")]
-#[repr(C)]
-#[derive(Debug, Default)]
-pub struct TdxCpuidConfig {
-    pub leaf: u32,
-    pub sub_leaf: u32,
-    pub eax: u32,
-    pub ebx: u32,
-    pub ecx: u32,
-    pub edx: u32,
-}
-
-#[cfg(feature = "tdx")]
-#[repr(C)]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct TdxCapabilities {
-    pub attrs_fixed0: u64,
-    pub attrs_fixed1: u64,
-    pub xfam_fixed0: u64,
-    pub xfam_fixed1: u64,
-    pub nr_cpuid_configs: u32,
-    pub padding: u32,
-    pub cpuid_configs: [TdxCpuidConfig; TDX_MAX_NR_CPUID_CONFIGS],
+    pub supported_attrs: u64,
+    pub supported_xfam: u64,
+    pub cpuid_configs: Vec<kvm_bindings::kvm_cpuid_entry2>,
 }
 
 #[cfg(feature = "tdx")]
@@ -1482,6 +1471,118 @@ impl vm::Vm for KvmVm {
     }
 
     ///
+    /// Retrieve TDX capabilities from the VM fd
+    ///
+    #[cfg(feature = "tdx")]
+    fn tdx_capabilities(&self) -> vm::Result<TdxCapabilities> {
+        info!("Querying TDX capabilities via KVM_TDX_CAPABILITIES on VM fd");
+        // The mainline kernel's kvm_tdx_capabilities uses a flexible array
+        // member (struct kvm_cpuid2 with trailing kvm_cpuid_entry2[]).
+        // We must allocate a contiguous buffer for the fixed header plus
+        // the variable-length CPUID entries, and retry with a larger buffer
+        // if the kernel returns E2BIG.
+        let mut nr_cpuid_configs = TDX_INITIAL_NR_CPUID_CONFIGS;
+
+        loop {
+            // Header layout matching struct kvm_tdx_capabilities:
+            //   u64 supported_attrs
+            //   u64 supported_xfam
+            //   u64 kernel_tdvmcallinfo_1_r11
+            //   u64 user_tdvmcallinfo_1_r11
+            //   u64 kernel_tdvmcallinfo_1_r12
+            //   u64 user_tdvmcallinfo_1_r12
+            //   u64 reserved[250]
+            //   struct kvm_cpuid2 { u32 nent; u32 padding; }
+            //   struct kvm_cpuid_entry2 entries[nent]
+            const HEADER_SIZE: usize = 6 * 8  // 6 x u64 fields
+                + 250 * 8                       // reserved[250]
+                + 4 + 4; // kvm_cpuid2 { nent, padding }
+            let entry_size = size_of::<kvm_bindings::kvm_cpuid_entry2>();
+            let total_size = HEADER_SIZE + (nr_cpuid_configs as usize) * entry_size;
+
+            let buf = vec![0u8; total_size];
+
+            // Set cpuid.nent to the number of entries we can hold.
+            let nent_offset = HEADER_SIZE - 8; // offset of kvm_cpuid2.nent
+            // SAFETY: nent_offset + 4 <= total_size is guaranteed by construction.
+            unsafe {
+                let nent_ptr = buf.as_ptr().add(nent_offset) as *mut u32;
+                nent_ptr.write(nr_cpuid_configs);
+            }
+
+            let ret = tdx_command(
+                &self.fd.as_raw_fd(),
+                TdxCommand::Capabilities,
+                0,
+                buf.as_ptr().cast(),
+            );
+
+            match ret {
+                Ok(()) => {
+                    // Parse the result from the buffer.
+                    // SAFETY: the kernel filled the buffer according to the
+                    // kvm_tdx_capabilities layout.
+                    let supported_attrs = u64::from_ne_bytes(buf[0..8].try_into().unwrap());
+                    let supported_xfam = u64::from_ne_bytes(buf[8..16].try_into().unwrap());
+
+                    // SAFETY: nent_offset + 4 <= total_size; the kernel
+                    // wrote the actual entry count at this offset.
+                    let actual_nent = unsafe {
+                        let nent_ptr = buf.as_ptr().add(nent_offset) as *const u32;
+                        nent_ptr.read()
+                    };
+
+                    let mut cpuid_configs = Vec::with_capacity(actual_nent as usize);
+                    for i in 0..actual_nent as usize {
+                        let entry_offset = HEADER_SIZE + i * entry_size;
+                        // SAFETY: the kernel wrote valid kvm_cpuid_entry2 data
+                        // and entry_offset + entry_size <= total_size. The read is
+                        // unaligned because buf is a Vec<u8> (1-byte alignment) while
+                        // kvm_cpuid_entry2 requires 4-byte alignment.
+                        let entry: kvm_bindings::kvm_cpuid_entry2 =
+                            unsafe { ptr::read_unaligned(buf.as_ptr().add(entry_offset).cast()) };
+                        cpuid_configs.push(entry);
+                    }
+
+                    return Ok(TdxCapabilities {
+                        supported_attrs,
+                        supported_xfam,
+                        cpuid_configs,
+                    });
+                }
+                Err(e) if e.raw_os_error() == Some(libc::E2BIG) => {
+                    // The kernel set cpuid.nent to the required count;
+                    // read it back and retry.
+                    // SAFETY: nent_offset + 4 <= total_size; the kernel
+                    // wrote the required entry count at this offset.
+                    let required_nent = unsafe {
+                        let nent_ptr = buf.as_ptr().add(nent_offset) as *const u32;
+                        nent_ptr.read()
+                    };
+                    info!(
+                        "TDX capabilities: E2BIG, need {required_nent} entries (had {nr_cpuid_configs})"
+                    );
+                    if required_nent <= nr_cpuid_configs {
+                        // The kernel did not increase the count; avoid
+                        // looping forever by doubling our guess.
+                        nr_cpuid_configs = nr_cpuid_configs.saturating_mul(2).max(64);
+                    } else {
+                        nr_cpuid_configs = required_nent;
+                    }
+                    if nr_cpuid_configs > 4096 {
+                        return Err(vm::HypervisorVmError::TdxCapabilities(io::Error::other(
+                            "E2BIG loop exceeded limit",
+                        )));
+                    }
+                }
+                Err(e) => {
+                    return Err(vm::HypervisorVmError::TdxCapabilities(e));
+                }
+            }
+        }
+    }
+
+    ///
     /// Initialize TDX for this VM
     ///
     #[cfg(feature = "tdx")]
@@ -1811,27 +1912,6 @@ impl hypervisor::Hypervisor for KvmHypervisor {
     ///
     fn get_host_ipa_limit(&self) -> i32 {
         self.kvm.get_host_ipa_limit()
-    }
-
-    ///
-    /// Retrieve TDX capabilities
-    ///
-    #[cfg(feature = "tdx")]
-    fn tdx_capabilities(&self) -> hypervisor::Result<TdxCapabilities> {
-        let data = TdxCapabilities {
-            nr_cpuid_configs: TDX_MAX_NR_CPUID_CONFIGS as u32,
-            ..Default::default()
-        };
-
-        tdx_command(
-            &self.kvm.as_raw_fd(),
-            TdxCommand::Capabilities,
-            0,
-            (&raw const data).cast(),
-        )
-        .map_err(|e| hypervisor::HypervisorError::TdxCapabilities(e.into()))?;
-
-        Ok(data)
     }
 
     #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]

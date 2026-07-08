@@ -34,6 +34,8 @@ use crate::arch::riscv64::aia::{Vaia, VaiaConfig};
 #[cfg(feature = "tdx")]
 use crate::arch::x86::CpuIdEntry;
 use crate::cpu::Vcpu;
+#[cfg(feature = "tdx")]
+use crate::kvm::TdxCapabilities;
 use crate::{ClockRestoreMode, ClockState, IoEventAddress, IrqRoutingEntry};
 
 ///
@@ -230,6 +232,12 @@ pub enum HypervisorVmError {
     ///
     #[error("Failed to initialize TDX")]
     InitializeTdx(#[source] io::Error),
+    #[cfg(feature = "tdx")]
+    ///
+    /// Error retrieving TDX capabilities
+    ///
+    #[error("Failed to retrieve TDX capabilities")]
+    TdxCapabilities(#[source] io::Error),
     #[cfg(feature = "tdx")]
     ///
     /// Error finalizing the TDX configuration on the VM
@@ -432,6 +440,11 @@ pub trait Vm: Send + Sync + Any {
     #[cfg(feature = "sev_snp")]
     /// Initialize SEV-SNP on this VM
     fn sev_snp_init(&self, guest_policy: SnpPolicy) -> Result<()>;
+    #[cfg(feature = "tdx")]
+    /// Retrieve TDX capabilities from the VM fd
+    fn tdx_capabilities(&self) -> Result<TdxCapabilities> {
+        unimplemented!()
+    }
     #[cfg(feature = "tdx")]
     /// Initialize TDX on this VM
     fn tdx_init(&self, _cpuid: &[CpuIdEntry], _max_vcpus: u32) -> Result<()> {

@@ -948,11 +948,13 @@ impl CpuManager {
     pub fn populate_cpuid(
         &mut self,
         hypervisor: &dyn hypervisor::Hypervisor,
+        #[cfg(feature = "tdx")] vm: &dyn hypervisor::Vm,
         #[cfg(feature = "tdx")] tdx: bool,
     ) -> Result<()> {
         self.cpuid = {
             let phys_bits = physical_bits(hypervisor, self.config.max_phys_bits);
-            arch::generate_common_cpuid(
+            #[allow(unused_mut)]
+            let mut cpuid = arch::generate_common_cpuid(
                 hypervisor,
                 &arch::CpuidConfig {
                     phys_bits,
@@ -963,7 +965,14 @@ impl CpuManager {
                     profile: self.config.profile,
                 },
             )
-            .map_err(Error::CommonCpuId)?
+            .map_err(Error::CommonCpuId)?;
+
+            #[cfg(feature = "tdx")]
+            if tdx {
+                arch::common_cpuid_tdx_configuration(&mut cpuid, vm).map_err(Error::CommonCpuId)?;
+            }
+
+            cpuid
         };
 
         Ok(())
