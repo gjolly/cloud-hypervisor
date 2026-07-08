@@ -23,6 +23,8 @@ mod smbios;
 use std::arch::x86_64;
 
 use helpers::{deserialize_u32_hex, serialize_u32_hex};
+#[cfg(feature = "tdx")]
+use hypervisor::HypervisorVmError;
 use hypervisor::arch::x86::{CPUID_FLAG_VALID_INDEX, CpuIdEntry};
 use hypervisor::{CpuVendor, HypervisorCpuError, HypervisorError};
 use linux_loader::loader::bootparam::{boot_params, setup_header};
@@ -181,7 +183,7 @@ pub enum Error {
     /// Error retrieving TDX capabilities through the hypervisor (kvm/mshv) API
     #[cfg(feature = "tdx")]
     #[error("Error retrieving TDX capabilities through the hypervisor API")]
-    TdxCapabilities(#[source] HypervisorError),
+    TdxCapabilities(#[source] HypervisorVmError),
 
     /// Failed to configure E820 map for bzImage
     #[error("Failed to configure E820 map for bzImage")]
@@ -638,12 +640,9 @@ pub fn generate_common_cpuid(
 
     let is_non_host_profile = !matches!(config.profile, CpuProfile::Host);
     #[cfg(feature = "tdx")]
-    if config.tdx {
-        if is_non_host_profile {
-            // TDX is not supported by CPU profiles other than host for the time being.
-            return Err(Error::CpuProfileTdxIncompatibility.into());
-        }
-        common_cpuid_tdx_configuration(&mut cpuid, hypervisor)?;
+    if config.tdx && is_non_host_profile {
+        // TDX is not supported by CPU profiles other than host for the time being.
+        return Err(Error::CpuProfileTdxIncompatibility.into());
     }
 
     // Copy CPU identification string
@@ -900,28 +899,24 @@ fn required_common_cpuid_updates(
 }
 
 #[cfg(feature = "tdx")]
-fn common_cpuid_tdx_configuration(
+pub fn common_cpuid_tdx_configuration(
     cpuid: &mut [CpuIdEntry],
-    hypervisor: &dyn hypervisor::Hypervisor,
+    vm: &dyn hypervisor::Vm,
 ) -> super::Result<()> {
-    let caps = hypervisor
-        .tdx_capabilities()
-        .map_err(Error::TdxCapabilities)?;
+    let caps = vm.tdx_capabilities().map_err(Error::TdxCapabilities)?;
     info!("TDX capabilities {caps:#?}");
 
     for entry in cpuid.iter_mut().filter(|entry| entry.function == 0xd) {
         let xcr0_mask: u64 = 0x82ff;
         let xss_mask: u64 = !xcr0_mask;
         if entry.index == 0 {
-            entry.eax &= (caps.xfam_fixed0 as u32) & (xcr0_mask as u32);
-            entry.eax |= (caps.xfam_fixed1 as u32) & (xcr0_mask as u32);
-            entry.edx &= ((caps.xfam_fixed0 & xcr0_mask) >> 32) as u32;
-            entry.edx |= ((caps.xfam_fixed1 & xcr0_mask) >> 32) as u32;
+            // Leaf 0xd index 0: XCR0 supported bits
+            entry.eax &= (caps.supported_xfam & xcr0_mask) as u32;
+            entry.edx &= ((caps.supported_xfam & xcr0_mask) >> 32) as u32;
         } else if entry.index == 1 {
-            entry.ecx &= (caps.xfam_fixed0 as u32) & (xss_mask as u32);
-            entry.ecx |= (caps.xfam_fixed1 as u32) & (xss_mask as u32);
-            entry.edx &= ((caps.xfam_fixed0 & xss_mask) >> 32) as u32;
-            entry.edx |= ((caps.xfam_fixed1 & xss_mask) >> 32) as u32;
+            // Leaf 0xd index 1: XSS supported bits
+            entry.ecx &= (caps.supported_xfam & xss_mask) as u32;
+            entry.edx &= ((caps.supported_xfam & xss_mask) >> 32) as u32;
         }
     }
 
