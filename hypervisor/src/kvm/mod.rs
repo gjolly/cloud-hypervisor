@@ -114,6 +114,8 @@ pub mod riscv64;
 
 #[cfg(target_arch = "x86_64")]
 use kvm_bindings::KVM_X86_DEFAULT_VM;
+#[cfg(feature = "tdx")]
+use kvm_bindings::KVMIO;
 ///
 /// Export generically-named wrappers of kvm-bindings for Unix-based platforms
 ///
@@ -140,8 +142,9 @@ use kvm_bindings::{
 };
 #[cfg(target_arch = "riscv64")]
 use kvm_bindings::{KVM_REG_RISCV_CORE, KVM_REG_RISCV_TIMER, kvm_riscv_core};
+// Mainline kernel TDX VM type (arch/x86/include/uapi/asm/kvm.h).
 #[cfg(feature = "tdx")]
-use kvm_bindings::{KVM_X86_SW_PROTECTED_VM, KVMIO};
+const KVM_X86_TDX_VM: u32 = 5;
 #[cfg(target_arch = "x86_64")]
 use kvm_bindings::{Xsave as xsave2, kvm_xsave2};
 pub use kvm_ioctls::{self, Cap, Kvm, VcpuExit};
@@ -280,6 +283,7 @@ const TDG_VP_VMCALL_INVALID_OPERAND: u64 = 0x8000000000000000;
 ioctl_iowr_nr!(KVM_MEMORY_ENCRYPT_OP, KVMIO, 0xba, raw::c_ulong);
 
 #[cfg(feature = "tdx")]
+#[derive(Debug, Clone, Copy)]
 #[repr(u32)]
 enum TdxCommand {
     Capabilities = 0,
@@ -1577,27 +1581,32 @@ fn tdx_command(
     flags: u32,
     data: *const libc::c_void,
 ) -> io::Result<()> {
+    // Matches mainline struct kvm_tdx_cmd from arch/x86/include/uapi/asm/kvm.h.
     #[repr(C)]
-    struct TdxIoctlCmd {
-        command: TdxCommand,
+    struct KvmTdxCmd {
+        id: TdxCommand,
         flags: u32,
         data: u64,
-        error: u64,
-        unused: u64,
+        hw_error: u64,
     }
-    let cmd = TdxIoctlCmd {
-        command,
+    let mut cmd = KvmTdxCmd {
+        id: command,
         flags,
         data: data as _,
-        error: 0,
-        unused: 0,
+        hw_error: 0,
     };
     // SAFETY: FFI call. All input parameters are valid.
-    let ret =
-        unsafe { ioctl_with_val(fd, KVM_MEMORY_ENCRYPT_OP(), &raw const cmd as raw::c_ulong) };
+    let ret = unsafe { ioctl_with_val(fd, KVM_MEMORY_ENCRYPT_OP(), &raw mut cmd as raw::c_ulong) };
 
     if ret < 0 {
-        return Err(io::Error::last_os_error());
+        let err = io::Error::last_os_error();
+        if cmd.hw_error != 0 {
+            error!(
+                "TDX command {:?} failed: hw_error=0x{:x}",
+                command, cmd.hw_error
+            );
+        }
+        return Err(err);
     }
     Ok(())
 }
@@ -1723,7 +1732,7 @@ impl hypervisor::Hypervisor for KvmHypervisor {
 
             #[cfg(feature = "tdx")]
             if _config.tdx_enabled {
-                vm_type = KVM_X86_SW_PROTECTED_VM.into();
+                vm_type = KVM_X86_TDX_VM.into();
             }
         }
 
