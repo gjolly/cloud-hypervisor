@@ -27,6 +27,8 @@ use std::os::unix::io::AsRawFd;
 use std::os::unix::io::RawFd;
 #[cfg(feature = "tdx")]
 use std::ptr;
+#[cfg(feature = "tdx")]
+use std::slice;
 #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
 use std::sync::Mutex;
 #[cfg(feature = "sev_snp")]
@@ -1586,42 +1588,112 @@ impl vm::Vm for KvmVm {
     /// Initialize TDX for this VM
     ///
     #[cfg(feature = "tdx")]
-    fn tdx_init(&self, cpuid: &[CpuIdEntry], max_vcpus: u32) -> vm::Result<()> {
+    fn tdx_init(&self, cpuid: &[CpuIdEntry], _max_vcpus: u32) -> vm::Result<()> {
         const TDX_ATTR_SEPT_VE_DISABLE: usize = 28;
 
-        let mut cpuid: Vec<kvm_bindings::kvm_cpuid_entry2> =
-            cpuid.iter().map(|e| (*e).into()).collect();
-        cpuid.resize(256, kvm_bindings::kvm_cpuid_entry2::default());
+        // Query TDX capabilities to get the configurable CPUID leaves and
+        // supported xfam.  The kernel's setup_tdparams_cpuids() requires
+        // that every CPUID entry we pass matches one of its configurable
+        // leaves (by function and index), and that copy_cnt == cpuid.nent.
+        // Filter guest CPUID entries to only those the TDX module accepts.
+        let caps = self.tdx_capabilities()?;
 
-        #[repr(C)]
-        struct TdxInitVm {
-            attributes: u64,
-            max_vcpus: u32,
-            padding: u32,
-            mrconfigid: [u64; 6],
-            mrowner: [u64; 6],
-            mrownerconfig: [u64; 6],
-            cpuid_nent: u32,
-            cpuid_padding: u32,
-            cpuid_entries: [kvm_bindings::kvm_cpuid_entry2; 256],
+        let all_entries: Vec<kvm_bindings::kvm_cpuid_entry2> =
+            cpuid.iter().map(|e| (*e).into()).collect();
+
+        // Keep only entries whose (function, index) matches a TDX
+        // configurable CPUID leaf from the capabilities, and mask each
+        // entry's register values against the corresponding
+        // capability mask so that we only set bits the TDX module
+        // considers configurable.
+        let filtered_entries: Vec<kvm_bindings::kvm_cpuid_entry2> = all_entries
+            .into_iter()
+            .filter_map(|mut e| {
+                caps.cpuid_configs
+                    .iter()
+                    .find(|c| c.function == e.function && c.index == e.index)
+                    .map(|c| {
+                        e.eax &= c.eax;
+                        e.ebx &= c.ebx;
+                        e.ecx &= c.ecx;
+                        e.edx &= c.edx;
+                        e
+                    })
+            })
+            .collect();
+
+        let nr_entries = filtered_entries.len();
+
+        // Compute xfam from guest CPUID leaf 0xd.
+        // XCR0 bits come from leaf 0xd index 0 (EAX:EDX).
+        // XSS  bits come from leaf 0xd index 1 (ECX:EDX).
+        let mut xfam: u64 = 0;
+        for entry in cpuid.iter() {
+            if entry.function == 0xd && entry.index == 0 {
+                xfam |= (entry.eax as u64) | ((entry.edx as u64) << 32);
+            } else if entry.function == 0xd && entry.index == 1 {
+                xfam |= (entry.ecx as u64) | ((entry.edx as u64) << 32);
+            }
         }
-        let data = TdxInitVm {
-            attributes: 1 << TDX_ATTR_SEPT_VE_DISABLE,
-            max_vcpus,
-            padding: 0,
-            mrconfigid: [0; 6],
-            mrowner: [0; 6],
-            mrownerconfig: [0; 6],
-            cpuid_nent: cpuid.len() as u32,
-            cpuid_padding: 0,
-            cpuid_entries: cpuid.as_slice().try_into().unwrap(),
-        };
+        // Mask against what the TDX module supports.
+        xfam &= caps.supported_xfam;
+
+        info!(
+            "TDX init: xfam=0x{:x}, {} CPUID entries (filtered from {})",
+            xfam,
+            nr_entries,
+            cpuid.len()
+        );
+
+        // Mainline struct kvm_tdx_init_vm layout:
+        //   u64 attributes
+        //   u64 xfam
+        //   u64 mrconfigid[6]
+        //   u64 mrowner[6]
+        //   u64 mrownerconfig[6]
+        //   u64 reserved[12]
+        //   struct kvm_cpuid2 { u32 nent; u32 padding; }
+        //   struct kvm_cpuid_entry2 entries[]
+        const HEADER_SIZE: usize = 2 * 8    // attributes + xfam
+            + 6 * 8                          // mrconfigid
+            + 6 * 8                          // mrowner
+            + 6 * 8                          // mrownerconfig
+            + 12 * 8                         // reserved
+            + 4 + 4; // kvm_cpuid2 { nent, padding }
+        let entry_size = size_of::<kvm_bindings::kvm_cpuid_entry2>();
+        let total_size = HEADER_SIZE + nr_entries * entry_size;
+
+        let mut buf = vec![0u8; total_size];
+
+        // attributes
+        let attrs: u64 = 1 << TDX_ATTR_SEPT_VE_DISABLE;
+        buf[0..8].copy_from_slice(&attrs.to_ne_bytes());
+        // xfam
+        buf[8..16].copy_from_slice(&xfam.to_ne_bytes());
+        // mrconfigid, mrowner, mrownerconfig, reserved: all zeroed
+
+        // cpuid.nent
+        let nent_offset = HEADER_SIZE - 8;
+        buf[nent_offset..nent_offset + 4].copy_from_slice(&(nr_entries as u32).to_ne_bytes());
+
+        // Copy CPUID entries after the header.
+        for (i, entry) in filtered_entries.iter().enumerate() {
+            let offset = HEADER_SIZE + i * entry_size;
+            // SAFETY: kvm_cpuid_entry2 is repr(C) and entry_size bytes.
+            let bytes: &[u8] = unsafe {
+                slice::from_raw_parts(
+                    (entry as *const kvm_bindings::kvm_cpuid_entry2).cast(),
+                    entry_size,
+                )
+            };
+            buf[offset..offset + entry_size].copy_from_slice(bytes);
+        }
 
         tdx_command(
             &self.fd.as_raw_fd(),
             TdxCommand::InitVm,
             0,
-            (&raw const data).cast(),
+            buf.as_ptr().cast(),
         )
         .map_err(vm::HypervisorVmError::InitializeTdx)
     }
