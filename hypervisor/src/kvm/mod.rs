@@ -1534,40 +1534,6 @@ impl vm::Vm for KvmVm {
             .map_err(vm::HypervisorVmError::FinalizeTdx)
     }
 
-    /// Initialize memory regions for the TDX VM
-    ///
-    /// # Safety
-    ///
-    /// `host_address` must be valid for `size` bytes
-    #[cfg(feature = "tdx")]
-    unsafe fn tdx_init_memory_region(
-        &self,
-        host_address: *mut u8,
-        guest_address: u64,
-        size: usize,
-        measure: bool,
-    ) -> vm::Result<()> {
-        #[repr(C)]
-        struct TdxInitMemRegion {
-            host_address: u64,
-            guest_address: u64,
-            pages: u64,
-        }
-        let data = TdxInitMemRegion {
-            host_address: host_address as _,
-            guest_address,
-            pages: (size / 4096).try_into().unwrap(),
-        };
-
-        tdx_command(
-            &self.fd.as_raw_fd(),
-            TdxCommand::InitMemRegion,
-            u32::from(measure),
-            (&raw const data).cast(),
-        )
-        .map_err(vm::HypervisorVmError::InitMemRegionTdx)
-    }
-
     /// Downcast to the underlying KvmVm type
     fn as_any(&self) -> &dyn Any {
         self
@@ -3442,6 +3408,51 @@ impl cpu::Vcpu for KvmVcpu {
 
         tdx_command(&self.fd.as_raw_fd(), TdxCommand::InitVcpu, 0, hob_address)
             .map_err(cpu::HypervisorCpuError::InitializeTdx)
+    }
+
+    /// Initialize a TDX memory region via the vCPU fd
+    ///
+    /// # Safety
+    ///
+    /// `host_address` must be valid for `size` bytes
+    #[cfg(feature = "tdx")]
+    unsafe fn tdx_init_memory_region(
+        &self,
+        host_address: *mut u8,
+        guest_address: u64,
+        size: usize,
+        measure: bool,
+    ) -> cpu::Result<()> {
+        // Matches mainline struct kvm_tdx_init_mem_region.
+        #[repr(C)]
+        struct KvmTdxInitMemRegion {
+            source_addr: u64,
+            gpa: u64,
+            nr_pages: u64,
+        }
+        let mut data = KvmTdxInitMemRegion {
+            source_addr: host_address as _,
+            gpa: guest_address,
+            nr_pages: (size / 4096).try_into().unwrap(),
+        };
+
+        // The kernel bails out with EINTR whenever a signal (or task work,
+        // e.g. io_uring teardown) is pending on the calling thread, and with
+        // EAGAIN on S-EPT contention. It updates `data` with its progress so
+        // the ioctl can simply be reissued to resume where it left off.
+        loop {
+            match tdx_command(
+                &self.fd.as_raw_fd(),
+                TdxCommand::InitMemRegion,
+                u32::from(measure),
+                (&raw mut data).cast(),
+            ) {
+                Err(e)
+                    if e.raw_os_error() == Some(libc::EINTR)
+                        || e.raw_os_error() == Some(libc::EAGAIN) => {}
+                r => break r.map_err(cpu::HypervisorCpuError::InitMemRegionTdx),
+            }
+        }
     }
 
     ///
