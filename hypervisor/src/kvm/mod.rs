@@ -1606,7 +1606,7 @@ impl vm::Vm for KvmVm {
         // entry's register values against the corresponding
         // capability mask so that we only set bits the TDX module
         // considers configurable.
-        let filtered_entries: Vec<kvm_bindings::kvm_cpuid_entry2> = all_entries
+        let mut filtered_entries: Vec<kvm_bindings::kvm_cpuid_entry2> = all_entries
             .into_iter()
             .filter_map(|mut e| {
                 caps.cpuid_configs
@@ -1621,6 +1621,27 @@ impl vm::Vm for KvmVm {
                     })
             })
             .collect();
+
+        // The kernel's setup_tdparams_eptp_controls() requires
+        // CPUID[0x80000008].EAX bits [23:16] (guest physical address
+        // width) to be exactly 48 or 52.  The guest CPUID may carry
+        // the host's physical address width instead, so clamp it to
+        // the TDX-supported value.  Use 48 (4-level EPT) unless the
+        // host value is already 52.
+        //
+        // This is a defensive normalization at the Vm-trait boundary:
+        // tdx_init() cannot assume its caller already fixed up the
+        // CPUID.  The canonical GPAW policy lives in the arch layer
+        // (see arch::tdx_gpaw_from_phys_bits), which cloud-hypervisor
+        // applies before reaching here; the clamp is intentionally
+        // duplicated so the hypervisor crate stays self-contained.
+        for entry in filtered_entries.iter_mut() {
+            if entry.function == 0x80000008 {
+                let guest_pa = (entry.eax >> 16) & 0xFF;
+                let tdx_gpaw = if guest_pa >= 52 { 52u32 } else { 48u32 };
+                entry.eax = (entry.eax & !0x00FF_0000) | (tdx_gpaw << 16);
+            }
+        }
 
         let nr_entries = filtered_entries.len();
 
