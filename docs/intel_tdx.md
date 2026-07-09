@@ -35,6 +35,54 @@ as it must include a kernel built from the [Guest TDX tree](https://github.com/i
 Cloud Hypervisor can also boot a TDX VM with direct kernel boot using [TDshim](https://github.com/confidential-containers/td-shim).
 The custom Linux kernel for the guest can be built with the [TDX Linux](https://github.com/intel/tdx-linux).
 
+### Mainline kernel ABI
+
+Cloud Hypervisor targets the TDX ABI that was merged into the mainline Linux
+kernel (v6.14 and later). This ABI differs from the earlier out-of-tree KVM TDX
+patchset in a few ways that are worth noting:
+
+- **ioctl placement**. The TDX control ioctls have moved between the system,
+  VM, and vCPU file descriptors:
+  - `KVM_TDX_CAPABILITIES` is issued on the **VM** fd (it used to be on the
+    system fd). Its `kvm_tdx_capabilities` payload now reports
+    `supported_attrs` / `supported_xfam` and embeds a `kvm_cpuid2` flexible
+    array instead of the old fixed-size configuration table.
+  - `KVM_TDX_INIT_VM` is issued on the **VM** fd and uses the mainline
+    `kvm_tdx_init_vm` layout.
+  - `KVM_TDX_INIT_MEM_REGION` is issued on the **vCPU** fd (it used to be on
+    the VM fd).
+- **Private memory**. TDX guests use `guest_memfd` together with the KVM
+  memory-attributes interface (`KVM_MEMORY_ATTRIBUTE_PRIVATE`), the same
+  private-memory infrastructure shared with SEV-SNP. Shared/private
+  conversions are driven by the guest through `KVM_HC_MAP_GPA_RANGE`
+  hypercalls (`KVM_CAP_EXIT_HYPERCALL`).
+
+### TDX-specific behavior and limitations
+
+- **Guest physical address width (GPAW)**. The TDX module only accepts a
+  guest physical address width of exactly 48 or 52 bits. Cloud Hypervisor
+  therefore clamps the value reported in CPUID leaf `0x80000008` to 48 bits
+  when the configured `phys_bits` is below 52, and to 52 bits otherwise. A
+  width of 52 bits requires 5-level paging (LA57) support.
+
+- **`boot` must equal `max` vCPUs**. TDX does not support vCPU hotplug: the
+  TDX module fixes the number of vCPUs at Trust Domain creation time. The
+  `--cpus boot=N,max=M` configuration must therefore use `boot == max` (or
+  omit `max`), otherwise VM creation is rejected.
+
+- **HOB MMIO64 aperture cap**. The 64-bit MMIO aperture advertised to TDVF
+  through the TD HOB is capped at 64 GiB. TDVF only consumes this range at
+  boot to size BAR allocations; the guest OS still discovers the full PCI
+  apertures from ACPI. Capping the advertised range avoids tens of millions
+  of unnecessary `MapGPA` TDVMCALLs during firmware startup.
+
+- **CPUID filtering and `tdx_disable_filter`**. The TDX module filters the
+  CPUID leaves exposed to the guest. Unless the guest kernel is booted with
+  the `tdx_disable_filter` parameter, ACPI devices responsible for PCI
+  hotplug (PCI hotplug controller, PCI Express Bus and Generic Event Device)
+  are not allowed, so their drivers are not loaded and PCI hotplug is not
+  available (see [Guest kernel limitations](#pci-hotplug-through-acpi)).
+
 ### TDVF
 
 > **Note**
