@@ -517,6 +517,10 @@ impl TdHob {
 
 #[cfg(test)]
 mod unit_tests {
+    use std::io::Write;
+
+    use vmm_sys_util::tempfile::TempFile;
+
     use super::*;
 
     #[test]
@@ -527,5 +531,156 @@ mod unit_tests {
         for section in sections {
             eprintln!("{section:x?}");
         }
+    }
+
+    // Serialize a TdvfSection into the on-disk little-endian layout expected by
+    // parse_tdvf_sections. Keep this independent from the parser so a layout
+    // regression in the struct definition is caught.
+    fn encode_section(section: &TdvfSection) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&section.data_offset.to_le_bytes());
+        bytes.extend_from_slice(&section.data_size.to_le_bytes());
+        bytes.extend_from_slice(&section.address.to_le_bytes());
+        bytes.extend_from_slice(&section.size.to_le_bytes());
+        bytes.extend_from_slice(&(section.r#type as u32).to_le_bytes());
+        bytes.extend_from_slice(&section.attributes.to_le_bytes());
+        bytes
+    }
+
+    // Build a minimal TDVF firmware image using the deprecated metadata-pointer
+    // method (32-bit descriptor offset located 0x20 bytes from the end, and no
+    // GUID table footer). Returns the raw image bytes.
+    fn build_tdvf_image(signature: &[u8; 4], version: u32, sections: &[TdvfSection]) -> Vec<u8> {
+        // The descriptor sits at the very start of the image.
+        let descriptor_offset: u32 = 0;
+
+        let mut image = Vec::new();
+
+        // TDVF_DESCRIPTOR header.
+        image.extend_from_slice(signature);
+        let length = (size_of::<TdvfDescriptor>() + size_of_val(sections)) as u32;
+        image.extend_from_slice(&length.to_le_bytes());
+        image.extend_from_slice(&version.to_le_bytes());
+        image.extend_from_slice(&(sections.len() as u32).to_le_bytes());
+
+        // Section entries.
+        for section in sections {
+            image.extend_from_slice(&encode_section(section));
+        }
+
+        // Pad so the metadata pointer lands exactly 0x20 bytes before the end,
+        // and make sure the file is large enough for the -0x30 GUID probe.
+        while image.len() < 0x40 {
+            image.push(0);
+        }
+
+        // The 32-bit metadata pointer is located 0x20 bytes from the end.
+        image.extend_from_slice(&descriptor_offset.to_le_bytes());
+        // Trailing 0x1c bytes so the pointer ends up at End - 0x20.
+        image.resize(image.len() + 0x1c, 0);
+
+        image
+    }
+
+    // Writes the image to a temporary file and returns an owned File positioned
+    // at the start, ready to be passed to parse_tdvf_sections. The returned
+    // TempFile keeps the backing file alive for the duration of the test.
+    fn write_temp_image(image: &[u8]) -> (TempFile, File) {
+        let tmp = TempFile::new().unwrap();
+        // Write through the `Write for &File` impl since TempFile only hands
+        // out a shared reference.
+        (&mut tmp.as_file()).write_all(image).unwrap();
+        let f = File::open(tmp.as_path()).unwrap();
+        (tmp, f)
+    }
+
+    #[test]
+    fn test_parse_tdvf_sections_synthetic() {
+        let sections = [
+            TdvfSection {
+                data_offset: 0,
+                data_size: 0x1000,
+                address: 0x1000,
+                size: 0x1000,
+                r#type: TdvfSectionType::Bfv,
+                attributes: 1, // TDVF_SECTION_ATTRIBUTES_EXTENDMR
+            },
+            TdvfSection {
+                data_offset: 0x1000,
+                data_size: 0,
+                address: 0x8000,
+                size: 0x2000,
+                r#type: TdvfSectionType::TdHob,
+                attributes: 0,
+            },
+        ];
+
+        let image = build_tdvf_image(b"TDVF", 1, &sections);
+        let (_tmp, mut f) = write_temp_image(&image);
+
+        let (parsed, guid_found) = parse_tdvf_sections(&mut f).unwrap();
+        assert!(!guid_found);
+        assert_eq!(parsed.len(), 2);
+
+        // Copy fields out of the packed struct before comparing to avoid
+        // creating unaligned references.
+        assert_eq!({ parsed[0].data_size }, 0x1000);
+        assert_eq!({ parsed[0].address }, 0x1000);
+        assert_eq!({ parsed[0].size }, 0x1000);
+        assert!(matches!(parsed[0].r#type, TdvfSectionType::Bfv));
+        assert_eq!({ parsed[0].attributes }, 1);
+
+        assert_eq!({ parsed[1].data_offset }, 0x1000);
+        assert_eq!({ parsed[1].address }, 0x8000);
+        assert_eq!({ parsed[1].size }, 0x2000);
+        assert!(matches!(parsed[1].r#type, TdvfSectionType::TdHob));
+    }
+
+    #[test]
+    fn test_parse_tdvf_sections_bad_signature() {
+        let sections = [TdvfSection {
+            r#type: TdvfSectionType::Bfv,
+            ..Default::default()
+        }];
+        let image = build_tdvf_image(b"XXXX", 1, &sections);
+        let (_tmp, mut f) = write_temp_image(&image);
+
+        assert!(matches!(
+            parse_tdvf_sections(&mut f),
+            Err(TdvfError::InvalidDescriptorSignature)
+        ));
+    }
+
+    #[test]
+    fn test_parse_tdvf_sections_bad_version() {
+        let sections = [TdvfSection {
+            r#type: TdvfSectionType::Bfv,
+            ..Default::default()
+        }];
+        let image = build_tdvf_image(b"TDVF", 2, &sections);
+        let (_tmp, mut f) = write_temp_image(&image);
+
+        assert!(matches!(
+            parse_tdvf_sections(&mut f),
+            Err(TdvfError::InvalidDescriptorVersion)
+        ));
+    }
+
+    #[test]
+    fn test_parse_tdvf_sections_bad_size() {
+        // Build a valid image, then corrupt the descriptor's advertised length
+        // (bytes 4..8) so it no longer matches the section count.
+        let sections = [TdvfSection {
+            r#type: TdvfSectionType::Bfv,
+            ..Default::default()
+        }];
+        let mut image = build_tdvf_image(b"TDVF", 1, &sections);
+        image[4..8].copy_from_slice(&0xdead_u32.to_le_bytes());
+        let (_tmp, mut f) = write_temp_image(&image);
+
+        assert!(matches!(
+            parse_tdvf_sections(&mut f),
+            Err(TdvfError::InvalidDescriptorSize)
+        ));
     }
 }
