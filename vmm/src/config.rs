@@ -6536,6 +6536,66 @@ id=\"{id}\",pci_segment={pci_segment},queue_sizes={queue_sizes}"
             invalid_config.validate(),
             Err(ValidationError::IdentifierNotUnique("test0".to_string()))
         );
+
+        #[cfg(feature = "tdx")]
+        {
+            let mut tdx_platform = platform_fixture();
+            tdx_platform.tdx = true;
+
+            // TDX enabled without firmware in the payload is rejected.
+            let mut invalid_config = valid_config.clone();
+            invalid_config.platform = Some(tdx_platform.clone());
+            // valid_config's payload has a kernel but no firmware.
+            assert_eq!(
+                invalid_config.validate(),
+                Err(ValidationError::TdxFirmwareMissing)
+            );
+
+            // With firmware set, boot_vcpus must equal max_vcpus (no CPU
+            // hotplug for TDX).
+            let mut invalid_config = valid_config.clone();
+            invalid_config.platform = Some(tdx_platform.clone());
+            if let Some(payload) = invalid_config.payload.as_mut() {
+                // TDX boots off a firmware (TDVF), not a bare kernel.
+                payload.kernel = None;
+                payload.firmware = Some(PathBuf::from("/path/to/tdvf.fd"));
+            }
+            invalid_config.cpus.boot_vcpus = 1;
+            invalid_config.cpus.max_vcpus = 2;
+            assert_eq!(
+                invalid_config.validate(),
+                Err(ValidationError::TdxNoCpuHotplug)
+            );
+
+            // Firmware set and boot_vcpus == max_vcpus passes TDX validation.
+            let mut tdx_valid_config = valid_config.clone();
+            tdx_valid_config.platform = Some(tdx_platform);
+            if let Some(payload) = tdx_valid_config.payload.as_mut() {
+                payload.kernel = None;
+                payload.firmware = Some(PathBuf::from("/path/to/tdvf.fd"));
+            }
+            tdx_valid_config.cpus.boot_vcpus = 1;
+            tdx_valid_config.cpus.max_vcpus = 1;
+            tdx_valid_config.validate().unwrap();
+        }
+
+        // TDX and SEV-SNP are mutually exclusive.
+        #[cfg(all(feature = "tdx", feature = "sev_snp"))]
+        {
+            let mut invalid_config = valid_config.clone();
+            let mut platform = platform_fixture();
+            platform.tdx = true;
+            platform.sev_snp = true;
+            invalid_config.platform = Some(platform);
+            if let Some(payload) = invalid_config.payload.as_mut() {
+                payload.kernel = None;
+                payload.firmware = Some(PathBuf::from("/path/to/tdvf.fd"));
+            }
+            assert_eq!(
+                invalid_config.validate(),
+                Err(ValidationError::TdxAndSevSnpExclusive)
+            );
+        }
     }
     #[test]
     fn test_landlock_parsing() -> Result<()> {
