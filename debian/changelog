@@ -4,6 +4,9 @@ cloud-hypervisor (52.0-0ubuntu2) UNRELEASED; urgency=medium
     (not OR) and add separate paragraphs for CC-BY-4.0 docs and
     Apache-2.0-only scripts/configs, matching .reuse/dep5 and regenerate
     d/copyright.
+  * d/rules: exclude bundled C sources from vendor tarball via
+    --exclude-crate-path for libssh2-sys#libssh2 and openssl-src#openssl;
+    these are unused (OPENSSL_NO_VENDOR=1) and carry extra license obligations.
 
  -- Gauthier Jolly <gauthier.jolly@canonical.com>  Wed, 15 Jul 2026 10:22:40 +0200
 
