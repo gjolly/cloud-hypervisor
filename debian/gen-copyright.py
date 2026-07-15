@@ -48,10 +48,18 @@ Source: https://github.com/cloud-hypervisor/cloud-hypervisor
 
 Files: *
 Copyright: Cloud Hypervisor Authors
-License: Apache-2.0 OR BSD-3-Clause
+License: Apache-2.0 AND BSD-3-Clause
+
+Files: docs/*.md *.md
+Copyright: Cloud Hypervisor Authors
+License: CC-BY-4.0
+
+Files: scripts/* test_data/* *.toml .git* .editorconfig fuzz/Cargo.lock fuzz/.gitignore resources/linux-config-* vmm/src/api/openapi/cloud-hypervisor.yaml CODEOWNERS Cargo.lock
+Copyright: Cloud Hypervisor Authors
+License: Apache-2.0
 
 Files: debian/*
-Copyright: 2026 Gauthier Jolly <gauthier.jolly@canonical.com>
+Copyright: 2026 Canonical Ltd.
 License: Apache-2.0
 """
 
@@ -426,6 +434,14 @@ def license_paragraph(license_expr):
                 " 3. This notice may not be removed or altered from any source"
                 " distribution."
             )
+        elif token == "CC-BY-4.0":
+            parts.append(
+                " Creative Commons Attribution 4.0 International Public"
+                " License.\n"
+                " .\n"
+                " For the full license text, see\n"
+                " https://creativecommons.org/licenses/by/4.0/legalcode"
+            )
         elif token == "Unicode-3.0":
             parts.append(
                 " UNICODE LICENSE V3\n"
@@ -547,7 +563,7 @@ def main():
     # lintian's unused-license-paragraph-in-dep5-copyright.
     all_licenses = set()
     # Seed from the static header.
-    for expr in ("Apache-2.0 OR BSD-3-Clause", "Apache-2.0"):
+    for expr in ("Apache-2.0 AND BSD-3-Clause", "Apache-2.0", "CC-BY-4.0"):
         for token in re.split(r"\s+(?:OR|AND)\s+", expr):
             token = token.strip("() ")
             if token:

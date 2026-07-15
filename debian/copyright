@@ -5,10 +5,18 @@ Source: https://github.com/cloud-hypervisor/cloud-hypervisor
 
 Files: *
 Copyright: Cloud Hypervisor Authors
-License: Apache-2.0 OR BSD-3-Clause
+License: Apache-2.0 AND BSD-3-Clause
+
+Files: docs/*.md *.md
+Copyright: Cloud Hypervisor Authors
+License: CC-BY-4.0
+
+Files: scripts/* test_data/* *.toml .git* .editorconfig fuzz/Cargo.lock fuzz/.gitignore resources/linux-config-* vmm/src/api/openapi/cloud-hypervisor.yaml CODEOWNERS Cargo.lock
+Copyright: Cloud Hypervisor Authors
+License: Apache-2.0
 
 Files: debian/*
-Copyright: 2026 Gauthier Jolly <gauthier.jolly@canonical.com>
+Copyright: 2026 Canonical Ltd.
 License: Apache-2.0
 
 Files: vendor/unicode-ident/*
@@ -147,16 +155,19 @@ Copyright: r-efi contributors
 License: Apache-2.0 OR LGPL-2.1-or-later OR MIT
 
 Files: vendor/addr2line/*
-Copyright: 2016-2018 The gimli Developers
+Copyright: addr2line contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/anstream/* vendor/anstyle/* vendor/anstyle-parse/*
- vendor/anstyle-query/* vendor/anstyle-wincon/* vendor/clap/*
- vendor/clap_builder/* vendor/clap_lex/* vendor/colorchoice/*
- vendor/env_filter/* vendor/env_logger/* vendor/is_terminal_polyfill/*
- vendor/once_cell_polyfill/* vendor/toml_datetime/* vendor/toml_edit/*
- vendor/toml_parser/*
+ vendor/anstyle-query/* vendor/clap/* vendor/clap_builder/*
+ vendor/clap_lex/* vendor/colorchoice/* vendor/env_filter/*
+ vendor/env_logger/* vendor/is_terminal_polyfill/* vendor/toml_datetime/*
+ vendor/toml_edit/* vendor/toml_parser/*
 Copyright: Individual contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/anstyle-wincon/*
+Copyright: anstyle-wincon contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/anyhow/* vendor/async-trait/* vendor/itoa/*
@@ -242,7 +253,7 @@ Copyright: Sam Rijs <srijs@airpost.net>
 License: Apache-2.0 OR MIT
 
 Files: vendor/crossbeam-utils/*
-Copyright: 2019 The Crossbeam Project Developers
+Copyright: crossbeam-utils contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/dhat/*
@@ -284,11 +295,37 @@ Files: vendor/flume/*
 Copyright: Joshua Barretto <joshua.s.barretto@gmail.com>
 License: Apache-2.0 OR MIT
 
-Files: vendor/futures/* vendor/futures-channel/* vendor/futures-core/*
- vendor/futures-executor/* vendor/futures-io/* vendor/futures-macro/*
- vendor/futures-sink/* vendor/futures-task/* vendor/futures-util/*
+Files: vendor/futures/*
+Copyright: futures contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/futures-channel/*
+Copyright: futures-channel contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/futures-core/* vendor/futures-sink/*
 Copyright: 2016 Alex Crichton
            2017 The Tokio Authors
+License: Apache-2.0 OR MIT
+
+Files: vendor/futures-executor/*
+Copyright: futures-executor contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/futures-io/*
+Copyright: futures-io contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/futures-macro/*
+Copyright: futures-macro contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/futures-task/*
+Copyright: futures-task contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/futures-util/*
+Copyright: futures-util contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/gdbstub/* vendor/gdbstub_arch/*
@@ -300,13 +337,17 @@ Files: vendor/getrandom/* vendor/getrandom-0.2.17/* vendor/getrandom-0.3.4/*
 Copyright: The Rand Project Developers
 License: Apache-2.0 OR MIT
 
-Files: vendor/gimli/* vendor/heck/*
-Copyright: 2015 The Rust Project Developers
+Files: vendor/gimli/*
+Copyright: gimli contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/hashbrown/* vendor/hashbrown-0.15.5/* vendor/lock_api/*
  vendor/parking_lot/* vendor/parking_lot_core/*
 Copyright: Amanieu d'Antras <amanieu@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/heck/*
+Copyright: heck contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/hermit-abi/*
@@ -373,11 +414,15 @@ Copyright: Alex Crichton <alex@alexcrichton.com>
 License: Apache-2.0 OR MIT
 
 Files: vendor/object/*
-Copyright: 2015 The Gimli Developers
+Copyright: object contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/once_cell/*
 Copyright: Aleksey Kladov <aleksey.kladov@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/once_cell_polyfill/*
+Copyright: once_cell_polyfill contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/ordered-stream/*
@@ -529,8 +574,12 @@ Files: vendor/winapi/* vendor/winapi-i686-pc-windows-gnu/*
 Copyright: Peter Atashian <retep998@gmail.com>
 License: Apache-2.0 OR MIT
 
-Files: vendor/windows-link/* vendor/windows-sys/*
-Copyright: Microsoft Corporation
+Files: vendor/windows-link/*
+Copyright: windows-link contributors
+License: Apache-2.0 OR MIT
+
+Files: vendor/windows-sys/*
+Copyright: windows-sys contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/zstd-safe/* vendor/zstd-sys/*
@@ -765,6 +814,12 @@ License: BSD-3-Clause
  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
+
+License: CC-BY-4.0
+ Creative Commons Attribution 4.0 International Public License.
+ .
+ For the full license text, see
+ https://creativecommons.org/licenses/by/4.0/legalcode
 
 License: LGPL-2.1-or-later
  On Debian systems, the complete text of the GNU Lesser General Public
