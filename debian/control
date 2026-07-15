@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Homepage: https://www.cloudhypervisor.org/
-Standards-Version: 4.7.2
+Standards-Version: 4.7.3
 Build-Depends:
  debhelper-compat (= 13),
  cargo,
