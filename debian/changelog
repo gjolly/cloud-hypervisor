@@ -1,11 +1,8 @@
 cloud-hypervisor (53.0-0ubuntu1) stonking; urgency=medium
 
   * Release v53.0.
-
- -- Gauthier Jolly <gauthier.jolly@canonical.com>  Wed, 15 Jul 2026 14:22:01 +0200
-
-cloud-hypervisor (52.0+ds1-0ubuntu2) stonking; urgency=medium
-
+  * d/rules: drop tdx support as upstream marked it as broken and the build
+    fails if TDX is enabled.
   * d/gen-copyright.py: fix upstream license to Apache-2.0 AND BSD-3-Clause
     (not OR) and add separate paragraphs for CC-BY-4.0 docs and
     Apache-2.0-only scripts/configs, matching .reuse/dep5 and regenerate
@@ -17,10 +14,7 @@ cloud-hypervisor (52.0+ds1-0ubuntu2) stonking; urgency=medium
   * d/rules: set ZSTD_SYS_USE_PKG_CONFIG=1 to link against system libzstd
     instead of compiling bundled sources.
   * d/control: add libzstd-dev to Build-Depends.
-  * d/patches: drop
-    0004-hypervisor-riscv64-drop-Irqchip-and-IrqRouting-cap-c.patch, the patch
-    is not needed and was introduced by mistake due to a wrong use of QEMU TCG
-    flags for RISC-V.
+  * d/patches: drop all the patches that are now upstreamed in v53.0.
 
  -- Gauthier Jolly <gauthier.jolly@canonical.com>  Wed, 15 Jul 2026 10:22:40 +0200
 
