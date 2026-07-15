@@ -1,0 +1,49 @@
+Vendor Tarball
+==============
+
+Cloud Hypervisor is packaged with a vendored Rust dependencies tarball
+(orig-vendor.tar.xz) since building requires network access to fetch
+crates, which is not available during package builds.
+
+Regenerating the vendor tarball
+-------------------------------
+
+From a clean upstream source tree at the desired release tag:
+
+    cargo vendor vendor/
+
+Then create the tarball:
+
+    UPSTREAM_VERSION=<version>
+    tar --sort=name --mtime="@0" --owner=root --group=root \
+        -cJf ../cloud-hypervisor_${UPSTREAM_VERSION}+ds1.orig-vendor.tar.xz vendor/
+
+The +dsN suffix
+---------------
+
+The "+ds1" suffix in the version string indicates the first Debian Source
+modification — in this case the addition of the vendor tarball which is not
+part of the upstream release artefact. If the vendor tarball needs to be
+regenerated independently of a new upstream release (e.g. to add or update
+a dependency), bump the suffix to +ds2, +ds3, etc.
+
+The upstream orig tarball (without vendor/) keeps its plain version:
+
+    cloud-hypervisor_<version>.orig.tar.xz
+
+Generating debian/copyright
+----------------------------
+
+The debian/copyright file is generated from the vendored crates metadata
+using:
+
+    debian/gen-copyright.py > debian/copyright
+
+This script parses each vendor/<crate>/Cargo.toml for license and author
+information and produces a DEP-5 machine-readable copyright file. It also
+includes per-file overrides for cases where individual source files carry
+a different license than the crate-level Cargo.toml declares (e.g.
+auto-generated bindings with BSD headers).
+
+After regenerating the vendor tarball, always re-run the script and review
+the diff to catch any new or changed licenses.
