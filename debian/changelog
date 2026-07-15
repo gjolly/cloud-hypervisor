@@ -1,3 +1,9 @@
+cloud-hypervisor (53.0-0ubuntu1) stonking; urgency=medium
+
+  * Release v53.0.
+
+ -- Gauthier Jolly <gauthier.jolly@canonical.com>  Wed, 15 Jul 2026 14:22:01 +0200
+
 cloud-hypervisor (52.0+ds1-0ubuntu2) stonking; urgency=medium
 
   * d/gen-copyright.py: fix upstream license to Apache-2.0 AND BSD-3-Clause
