@@ -68,7 +68,9 @@ vendor-tarball:
 		--platform=aarch64-unknown-linux-musl \
 		--platform=riscv64gc-unknown-linux-gnu \
 		--exclude-crate-path='*#tests' \
-		--exclude-crate-path='linux-loader#src/loader/**/*.bin'
+		--exclude-crate-path='linux-loader#src/loader/**/*.bin' \
+		--exclude-crate-path='libssh2-sys#libssh2' \
+		--exclude-crate-path='openssl-src#openssl'
 	tar cJf $(VENDOR_TARBALL) vendor/
 	rm -rf vendor
 	@echo "Created $(VENDOR_TARBALL)"
