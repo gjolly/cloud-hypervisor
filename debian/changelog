@@ -1,4 +1,4 @@
-cloud-hypervisor (52.0-0ubuntu2) UNRELEASED; urgency=medium
+cloud-hypervisor (52.0+ds1-0ubuntu2) stonking; urgency=medium
 
   * d/gen-copyright.py: fix upstream license to Apache-2.0 AND BSD-3-Clause
     (not OR) and add separate paragraphs for CC-BY-4.0 docs and
