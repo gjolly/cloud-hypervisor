@@ -5,6 +5,7 @@ export CARGO_HOME = $(CURDIR)/debian/cargo_home
 # Use the system libssl-dev; do not let openssl-sys vendor/build OpenSSL from
 # source (it does not recognise all Rust target triples, e.g. riscv64a23).
 export OPENSSL_NO_VENDOR = 1
+export ZSTD_SYS_USE_PKG_CONFIG = 1
 
 include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
@@ -69,8 +70,13 @@ vendor-tarball:
 		--platform=riscv64gc-unknown-linux-gnu \
 		--exclude-crate-path='*#tests' \
 		--exclude-crate-path='linux-loader#src/loader/**/*.bin' \
+		--exclude-crate-path='*#**/*.png' \
+		--exclude-crate-path='*#**/*.jpg' \
+		--exclude-crate-path='*#**/*.dtb' \
 		--exclude-crate-path='libssh2-sys#libssh2' \
-		--exclude-crate-path='openssl-src#openssl'
+		--exclude-crate-path='openssl-src#openssl' \
+		--exclude-crate-path='zstd-sys#zstd' \
+		--exclude-crate-path='libz-sys#src'
 	tar cJf $(VENDOR_TARBALL) vendor/
 	rm -rf vendor
 	@echo "Created $(VENDOR_TARBALL)"

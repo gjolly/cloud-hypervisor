@@ -9,6 +9,7 @@ Build-Depends:
  cargo,
  rustc,
  libssl-dev,
+ libzstd-dev,
  pkgconf,
 Rules-Requires-Root: no
 
