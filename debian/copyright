@@ -738,6 +738,10 @@ Files: vendor/foldhash/*
 Copyright: Orson Peters <orsonpeters@gmail.com>
 License: Zlib
 
+Files: vendor/zstd-sys/src/bindings_*
+Copyright: Meta Platforms, Inc. and affiliates
+License: BSD-3-Clause
+
 License: 0BSD
  Permission to use, copy, modify, and/or distribute this software for
  any purpose with or without fee is hereby granted.

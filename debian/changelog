@@ -5,8 +5,16 @@ cloud-hypervisor (52.0-0ubuntu2) UNRELEASED; urgency=medium
     Apache-2.0-only scripts/configs, matching .reuse/dep5 and regenerate
     d/copyright.
   * d/rules: exclude bundled C sources from vendor tarball via
-    --exclude-crate-path for libssh2-sys#libssh2 and openssl-src#openssl;
-    these are unused (OPENSSL_NO_VENDOR=1) and carry extra license obligations.
+    --exclude-crate-path for libssh2-sys#libssh2, openssl-src#openssl,
+    zstd-sys#zstd, and libz-sys#src to avoid carrying extra license
+    obligations (BSD-3-Clause, Zlib, etc.) from bundled C libraries.
+  * d/rules: set ZSTD_SYS_USE_PKG_CONFIG=1 to link against system libzstd
+    instead of compiling bundled sources.
+  * d/control: add libzstd-dev to Build-Depends.
+  * d/patches: drop
+    0004-hypervisor-riscv64-drop-Irqchip-and-IrqRouting-cap-c.patch, the patch
+    is not needed and was introduced by mistake due to a wrong use of QEMU TCG
+    flags for RISC-V.
 
  -- Gauthier Jolly <gauthier.jolly@canonical.com>  Wed, 15 Jul 2026 10:22:40 +0200
 

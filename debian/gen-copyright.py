@@ -24,6 +24,22 @@ from pathlib import Path
 # SPDX short-name matches the filename under /usr/share/common-licenses/
 # belong here.  Suffixed variants like "-or-later" or "-only" need custom
 # handlers below to point at the correct filename.
+# Per-file license overrides for files whose actual license differs from
+# the crate-level Cargo.toml license field.  These are emitted after the
+# crate-level paragraphs so that DEP-5 last-match-wins semantics apply.
+FILE_OVERRIDES = [
+    {
+        "files": "vendor/zstd-sys/src/bindings_*",
+        "copyright": "Meta Platforms, Inc. and affiliates",
+        "license": "BSD-3-Clause",
+    },
+]
+
+# SPDX license identifiers that can be referenced from
+# /usr/share/common-licenses/ on Debian systems.  Only identifiers whose
+# SPDX short-name matches the filename under /usr/share/common-licenses/
+# belong here.  Suffixed variants like "-or-later" or "-only" need custom
+# handlers below to point at the correct filename.
 COMMON_LICENSES = {
     "Apache-2.0",
     "GPL-2.0",
@@ -605,6 +621,19 @@ def main():
             f"Copyright: {copyright_lines}\n"
             f"License: {dep5_license}\n"
         )
+
+    # Emit per-file override paragraphs (last-match-wins in DEP-5)
+    for override in FILE_OVERRIDES:
+        dep5_license = format_dep5_license(override["license"])
+        output.append(
+            f"Files: {override['files']}\n"
+            f"Copyright: {override['copyright']}\n"
+            f"License: {dep5_license}\n"
+        )
+        for token in re.split(r"\s+(?:OR|AND)\s+", dep5_license):
+            token = token.strip("() ")
+            if token:
+                all_licenses.add(token)
 
     # Emit License: paragraphs for all unique licenses (sorted, no dupes)
     for license_expr in sorted(all_licenses):
