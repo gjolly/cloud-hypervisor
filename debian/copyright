@@ -67,6 +67,11 @@ Files: vendor/virtio-queue/*
 Copyright: The Chromium OS Authors
 License: Apache-2.0 AND BSD-3-Clause
 
+Files: vendor/ring/*
+Copyright: 2015-2025 Brian Smith
+           notice and this permission notice appear in all copies
+License: Apache-2.0 AND ISC
+
 Files: vendor/linux-raw-sys/*
 Copyright: Dan Gohman <dev@sunfishcode.online>
 License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
@@ -84,30 +89,8 @@ Files: vendor/wasip2/*
 Copyright: wasip2 contributors
 License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
 
-Files: vendor/wasip3/*
-Copyright: wasip3 contributors
-License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
-
-Files: vendor/wasm-encoder/*
-Copyright: Nick Fitzgerald <fitzgen@gmail.com>
-License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
-
-Files: vendor/wasm-metadata/*
-Copyright: wasm-metadata contributors
-License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
-
-Files: vendor/wasmparser/*
-Copyright: Yury Delendik <ydelendik@mozilla.com>
-License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
-
-Files: vendor/wit-bindgen/* vendor/wit-bindgen-0.51.0/*
- vendor/wit-bindgen-core/* vendor/wit-bindgen-rust/*
- vendor/wit-bindgen-rust-macro/* vendor/wit-parser/*
+Files: vendor/wit-bindgen/*
 Copyright: Alex Crichton <alex@alexcrichton.com>
-License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
-
-Files: vendor/wit-component/*
-Copyright: Peter Huene <peter@huene.dev>
 License: Apache-2.0 OR Apache-2.0-with-LLVM-exception OR MIT
 
 Files: vendor/zerocopy/* vendor/zerocopy-derive/*
@@ -150,6 +133,11 @@ Copyright: Daniel Wagner-Hall <dawagner@gmail.com>
            Vincent Esche <regexident@gmail.com>
 License: Apache-2.0 OR BSD-3-Clause OR MIT
 
+Files: vendor/rustls/*
+Copyright: 2016, Joseph Birr-Pixton <jpixton@gmail.com>
+           2016 Joseph Birr-Pixton <jpixton@gmail.com>
+License: Apache-2.0 OR ISC OR MIT
+
 Files: vendor/r-efi/* vendor/r-efi-5.3.0/*
 Copyright: r-efi contributors
 License: Apache-2.0 OR LGPL-2.1-or-later OR MIT
@@ -160,9 +148,9 @@ License: Apache-2.0 OR MIT
 
 Files: vendor/anstream/* vendor/anstyle/* vendor/anstyle-parse/*
  vendor/anstyle-query/* vendor/clap/* vendor/clap_builder/*
- vendor/clap_lex/* vendor/colorchoice/* vendor/env_filter/*
- vendor/env_logger/* vendor/is_terminal_polyfill/* vendor/toml_datetime/*
- vendor/toml_edit/* vendor/toml_parser/*
+ vendor/clap_derive/* vendor/clap_lex/* vendor/colorchoice/*
+ vendor/env_filter/* vendor/env_logger/* vendor/is_terminal_polyfill/*
+ vendor/toml_datetime/* vendor/toml_edit/* vendor/toml_parser/*
 Copyright: Individual contributors
 License: Apache-2.0 OR MIT
 
@@ -170,10 +158,9 @@ Files: vendor/anstyle-wincon/*
 Copyright: anstyle-wincon contributors
 License: Apache-2.0 OR MIT
 
-Files: vendor/anyhow/* vendor/async-trait/* vendor/itoa/*
- vendor/prettyplease/* vendor/quote/* vendor/remain/* vendor/rustversion/*
- vendor/semver/* vendor/serde_repr/* vendor/syn/* vendor/thiserror/*
- vendor/thiserror-impl/*
+Files: vendor/anyhow/* vendor/async-trait/* vendor/itoa/* vendor/quote/*
+ vendor/remain/* vendor/rustversion/* vendor/serde_repr/* vendor/syn/*
+ vendor/thiserror/* vendor/thiserror-impl/*
 Copyright: David Tolnay <dtolnay@gmail.com>
 License: Apache-2.0 OR MIT
 
@@ -222,6 +209,14 @@ Files: vendor/backtrace/* vendor/bitflags/* vendor/bitflags-1.3.2/*
 Copyright: The Rust Project Developers
 License: Apache-2.0 OR MIT
 
+Files: vendor/base64/*
+Copyright: Marshall Pierce <marshall@mpierce.org>
+License: Apache-2.0 OR MIT
+
+Files: vendor/bit-set/* vendor/bit-vec/*
+Copyright: Alexis Beingessner <a.beingessner@gmail.com>
+License: Apache-2.0 OR MIT
+
 Files: vendor/block-buffer/* vendor/chacha20/* vendor/const-oid/*
  vendor/cpufeatures/* vendor/crypto-common/* vendor/digest/*
  vendor/hybrid-array/* vendor/sha2/*
@@ -232,8 +227,9 @@ Files: vendor/bumpalo/*
 Copyright: Nick Fitzgerald <fitzgen@gmail.com>
 License: Apache-2.0 OR MIT
 
-Files: vendor/cc/* vendor/cfg-if/* vendor/jobserver/* vendor/openssl-src/*
- vendor/pkg-config/* vendor/rustc-demangle/* vendor/wait-timeout/*
+Files: vendor/cc/* vendor/cfg-if/* vendor/fnv/* vendor/jobserver/*
+ vendor/openssl-src/* vendor/pkg-config/* vendor/rustc-demangle/*
+ vendor/wait-timeout/*
 Copyright: Alex Crichton <alex@alexcrichton.com>
 License: Apache-2.0 OR MIT
 
@@ -256,6 +252,10 @@ Files: vendor/crossbeam-utils/*
 Copyright: crossbeam-utils contributors
 License: Apache-2.0 OR MIT
 
+Files: vendor/defmt/* vendor/defmt-macros/* vendor/defmt-parser/*
+Copyright: The Knurling-rs developers
+License: Apache-2.0 OR MIT
+
 Files: vendor/dhat/*
 Copyright: Nicholas Nethercote <n.nethercote@gmail.com>
 License: Apache-2.0 OR MIT
@@ -264,8 +264,8 @@ Files: vendor/dirs/* vendor/dirs-sys/*
 Copyright: Simon Ochsenreither <simon@ochsenreither.de>
 License: Apache-2.0 OR MIT
 
-Files: vendor/either/* vendor/itertools/* vendor/scopeguard/*
-Copyright: bluss
+Files: vendor/either/*
+Copyright: either contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/enumflags2/* vendor/enumflags2_derive/*
@@ -341,13 +341,12 @@ Files: vendor/gimli/*
 Copyright: gimli contributors
 License: Apache-2.0 OR MIT
 
-Files: vendor/hashbrown/* vendor/hashbrown-0.15.5/* vendor/lock_api/*
- vendor/parking_lot/* vendor/parking_lot_core/*
-Copyright: Amanieu d'Antras <amanieu@gmail.com>
+Files: vendor/hashbrown/*
+Copyright: 2016 Amanieu d'Antras
 License: Apache-2.0 OR MIT
 
 Files: vendor/heck/*
-Copyright: heck contributors
+Copyright: 2015 The Rust Project Developers
 License: Apache-2.0 OR MIT
 
 Files: vendor/hermit-abi/*
@@ -356,11 +355,6 @@ License: Apache-2.0 OR MIT
 
 Files: vendor/hex/*
 Copyright: KokaKiwi <kokakiwi@kokakiwi.net>
-License: Apache-2.0 OR MIT
-
-Files: vendor/id-arena/*
-Copyright: Nick Fitzgerald <fitzgen@gmail.com>
-           Aleksey Kladov <aleksey.kladov@gmail.com>
 License: Apache-2.0 OR MIT
 
 Files: vendor/ident_case/*
@@ -380,6 +374,10 @@ Copyright: Abhishek Chanda <abhishek.becs@gmail.com>
            Linus Färnstrand <faern@faern.net>
 License: Apache-2.0 OR MIT
 
+Files: vendor/itertools/* vendor/scopeguard/*
+Copyright: bluss
+License: Apache-2.0 OR MIT
+
 Files: vendor/js-sys/* vendor/wasm-bindgen/* vendor/wasm-bindgen-macro/*
  vendor/wasm-bindgen-macro-support/* vendor/wasm-bindgen-shared/*
 Copyright: The wasm-bindgen Developers
@@ -397,10 +395,6 @@ Files: vendor/lazy_static/*
 Copyright: Marvin Löbel <loebel.marvin@gmail.com>
 License: Apache-2.0 OR MIT
 
-Files: vendor/leb128fmt/*
-Copyright: Bryant Luk <code@bryantluk.com>
-License: Apache-2.0 OR MIT
-
 Files: vendor/libssh2-sys/* vendor/ssh2/*
 Copyright: Alex Crichton <alex@alexcrichton.com>
            Wez Furlong <wez@wezfurlong.org>
@@ -411,6 +405,10 @@ Files: vendor/libz-sys/*
 Copyright: Alex Crichton <alex@alexcrichton.com>
            Josh Triplett <josh@joshtriplett.org>
            Sebastian Thiel <sebastian.thiel@icloud.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/lock_api/* vendor/parking_lot/* vendor/parking_lot_core/*
+Copyright: Amanieu d'Antras <amanieu@gmail.com>
 License: Apache-2.0 OR MIT
 
 Files: vendor/object/*
@@ -467,6 +465,10 @@ Files: vendor/portable-atomic-util/*
 Copyright: portable-atomic-util contributors
 License: Apache-2.0 OR MIT
 
+Files: vendor/ppv-lite86/*
+Copyright: The CryptoCorrosion Contributors
+License: Apache-2.0 OR MIT
+
 Files: vendor/proc-macro-crate/*
 Copyright: Bastian Köcher <git@kchr.de>
 License: Apache-2.0 OR MIT
@@ -476,14 +478,34 @@ Copyright: David Tolnay <dtolnay@gmail.com>
            Alex Crichton <alex@alexcrichton.com>
 License: Apache-2.0 OR MIT
 
-Files: vendor/rand/*
+Files: vendor/proptest/* vendor/rusty-fork/*
+Copyright: Jason Lingle
+License: Apache-2.0 OR MIT
+
+Files: vendor/quick-error/*
+Copyright: Paul Colomiets <paul@colomiets.name>
+           Colin Kiegel <kiegel@gmx.de>
+License: Apache-2.0 OR MIT
+
+Files: vendor/rand/* vendor/rand-0.9.4/* vendor/rand_core-0.9.5/*
+ vendor/rand_xorshift/*
 Copyright: The Rand Project Developers
            The Rust Project Developers
+License: Apache-2.0 OR MIT
+
+Files: vendor/rand_chacha/*
+Copyright: The Rand Project Developers
+           The Rust Project Developers
+           The CryptoCorrosion Contributors
 License: Apache-2.0 OR MIT
 
 Files: vendor/regex/* vendor/regex-automata/* vendor/regex-syntax/*
 Copyright: The Rust Project Developers
            Andrew Gallant <jamslam@gmail.com>
+License: Apache-2.0 OR MIT
+
+Files: vendor/rustls-pki-types/*
+Copyright: 2023 Dirkjan Ochtman <dirkjan@ochtman.nl>
 License: Apache-2.0 OR MIT
 
 Files: vendor/serde/* vendor/serde_core/* vendor/serde_derive/*
@@ -544,14 +566,11 @@ Copyright: Jesse A. Tov <jesse.tov@gmail.com>
 License: Apache-2.0 OR MIT
 
 Files: vendor/typenum/*
-Copyright: Paho Lurie-Gregg <paho@paholg.com>
-           Andre Bogus <bogusandre@gmail.com>
+Copyright: 2014 Paho Lurie-Gregg
 License: Apache-2.0 OR MIT
 
-Files: vendor/unicode-xid/*
-Copyright: erick.tryzelaar <erick.tryzelaar@gmail.com>
-           kwantam <kwantam@gmail.com>
-           Manish Goregaokar <manishsmail@gmail.com>
+Files: vendor/unarray/*
+Copyright: [year] [fullname]
 License: Apache-2.0 OR MIT
 
 Files: vendor/utf8parse/*
@@ -582,6 +601,18 @@ Files: vendor/windows-sys/*
 Copyright: windows-sys contributors
 License: Apache-2.0 OR MIT
 
+Files: vendor/windows-sys-0.52.0/* vendor/windows-targets/*
+ vendor/windows_aarch64_gnullvm/* vendor/windows_aarch64_msvc/*
+ vendor/windows_i686_gnu/* vendor/windows_i686_gnullvm/*
+ vendor/windows_i686_msvc/* vendor/windows_x86_64_gnu/*
+ vendor/windows_x86_64_gnullvm/* vendor/windows_x86_64_msvc/*
+Copyright: Microsoft
+License: Apache-2.0 OR MIT
+
+Files: vendor/zeroize/*
+Copyright: The RustCrypto Project Developers
+License: Apache-2.0 OR MIT
+
 Files: vendor/zstd-safe/* vendor/zstd-sys/*
 Copyright: Alexandre Bury <alexandre.bury@gmail.com>
 License: Apache-2.0 OR MIT
@@ -592,9 +623,23 @@ Copyright: Frommi <daniil.liferenko@gmail.com>
            Rich Geldreich richgel99@gmail.com
 License: Apache-2.0 OR MIT OR Zlib
 
+Files: vendor/subtle/*
+Copyright: Isis Lovecruft <isis@patternsinthevoid.net>
+           Henry de Valence <hdevalence@hdevalence.ca>
+License: BSD-3-Clause
+
 Files: vendor/vmm-sys-util/*
 Copyright: Intel Virtualization Team <vmm-maintainers@intel.com>
 License: BSD-3-Clause
+
+Files: vendor/rustls-webpki/*
+Copyright: 2015 Brian Smith
+           notice and this permission notice appear in all copies
+License: ISC
+
+Files: vendor/untrusted/*
+Copyright: Brian Smith <brian@briansmith.org>
+License: ISC
 
 Files: vendor/bitfield-struct/* vendor/bitfield-struct-0.10.1/*
 Copyright: Lars Wrenger <lars@wrenger.net>
@@ -734,10 +779,6 @@ Files: vendor/option-ext/*
 Copyright: Simon Ochsenreither <simon@ochsenreither.de>
 License: MPL-2.0
 
-Files: vendor/foldhash/*
-Copyright: Orson Peters <orsonpeters@gmail.com>
-License: Zlib
-
 Files: vendor/zstd-sys/src/bindings_*
 Copyright: Meta Platforms, Inc. and affiliates
 License: BSD-3-Clause
@@ -824,6 +865,9 @@ License: CC-BY-4.0
  .
  For the full license text, see
  https://creativecommons.org/licenses/by/4.0/legalcode
+
+License: ISC
+ See the license text in the corresponding crate directory under vendor/.
 
 License: LGPL-2.1-or-later
  On Debian systems, the complete text of the GNU Lesser General Public
